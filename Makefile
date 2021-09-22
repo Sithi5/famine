@@ -215,9 +215,7 @@ clean_payload:
 	@echo "$(_YELLOW)Remove :\t$(_RED)" $(LDFLAGS)$(PAYLOAD_NAME)"$(_END)"
 
 fclean: clean clean_payload
-	@rm -f $(NAME) woody
 	@echo "$(_YELLOW)Remove :\t$(_RED)" $(LDFLAGS)$(NAME)
-	@echo "$(_YELLOW)Remove :\t$(_RED)" $(LDFLAGS)woody
 	@echo "$(_END)"
 
 re: fclean all
