@@ -90,6 +90,14 @@ CC				+= -D PAYLOAD_NAME_64=\"$(PAYLOAD_NAME_64)\"
 #                                     NAME                                     #
 ################################################################################
 
+ifeq ($(LONG_BITS),32)
+# Define for 32bits
+ASM_SRC_NAME		:=	xor_cipher_32.asm
+else
+# Define for 64bits
+ASM_SRC_NAME		:=	rc4_cipher_64.asm
+endif
+
 
 PAYLOAD_SRC_NAME_32	=	payload_mark_32.asm
 
@@ -108,6 +116,8 @@ SRC_NAME			:=	main.c								\
 						overwrite_payload.c					\
 						find_payload_offset_elf32.c			\
 						find_payload_offset_elf64.c			\
+						key_generator.c						\
+						crypto.c							\
 						silvio_text_infection.c
 
 
@@ -122,14 +132,17 @@ TESTS_SRC_NAME		:= 	./tests/test*.sh
 
 SRC_PATH			:=	./src/
 
+ASM_SRC_PATH		:=	./asm/
+
 PAYLOAD_SRC_PATH	:=	./payloads/
 
 OBJ_PATH 			:=	./obj/
 
+ASM_OBJ_PATH		:= 	./obj_asm/
+
 PAYLOAD_OBJ_PATH	:= 	./obj_payload/
 
 INCLUDE_PATH		:=	./include/
-
 
 ################################################################################
 #                                 NAME + PATH                                  #
@@ -137,9 +150,13 @@ INCLUDE_PATH		:=	./include/
 
 SRC					:=	$(addprefix $(SRC_PATH), $(SRC_NAME))
 
+ASM_SRC				:= 	$(addprefix $(ASM_SRC_PATH), $(ASM_SRC_NAME))
+
 PAYLOAD_SRC			:= 	$(addprefix $(PAYLOAD_SRC_PATH), $(PAYLOAD_SRC_NAME))
 
 OBJ					:=	$(patsubst $(SRC_PATH)%.c, $(OBJ_PATH)%.o,	$(SRC))
+
+ASM_OBJ				:=	$(patsubst $(ASM_SRC_PATH)%.asm, $(ASM_OBJ_PATH)%.o, $(ASM_SRC))
 
 PAYLOAD_OBJ			:=	$(patsubst $(PAYLOAD_SRC_PATH)%.asm, $(PAYLOAD_OBJ_PATH)%.o, $(PAYLOAD_SRC))
 
@@ -152,12 +169,12 @@ INCLUDE				:=	$(addprefix $(INCLUDE_PATH), $(INCLUDE_NAME))
 
 all: $(ART_NAME) $(PAYLOAD_NAME_32) $(PAYLOAD_NAME_64) $(NAME)
 
-$(NAME): $(OBJ)
+$(NAME): $(ASM_OBJ) $(OBJ)
 	@echo "\n$(NAME) : $(GEN)"
 	@echo "\n$(_CYAN)====================================================$(_END)"
 	@echo "$(_YELLOW)		COMPILING $(NAME)$(_END)"
 	@echo "$(_CYAN)====================================================$(_END)"
-	@$(CC) -o $(NAME) $(OBJ)
+	@$(CC) -o $(NAME) $(OBJ) $(ASM_OBJ)
 	@echo "\n$(_WHITE)$(_BOLD)$@\t$(_END)$(_GREEN)[OK]\n$(_END)"
 	@echo "\n"
 
@@ -183,6 +200,12 @@ $(OBJ_PATH)%.o: $(SRC_PATH)%.c $(INCLUDE)
 	@echo "$(_END)$(_GREEN)[OK]\t$(_UNDER)$(_YELLOW)\t"	\
 		"COMPILE :$(_END)$(_BOLD)$(_WHITE)\t$<"
 
+$(ASM_OBJ_PATH)%.o: $(ASM_SRC_PATH)%.asm
+	@mkdir -p $(ASM_OBJ_PATH)
+	@$(AS) $(ASM_FLAG) $< -o $@
+	@echo "$(_END)$(_GREEN)[OK]\t$(_UNDER)$(_YELLOW)\t"	\
+		"COMPILE :$(_END)$(_BOLD)$(_WHITE)\t$<"
+
 
 # This payload obj are just to prevent relink.
 $(PAYLOAD_OBJ_PATH)%.o: $(PAYLOAD_SRC_PATH)%.asm
@@ -200,6 +223,8 @@ tests: all
 clean:
 	@rm -rf $(OBJ_PATH) 2> /dev/null || true
 	@echo "$(_YELLOW)Remove :\t$(_RED)" $(OBJ_PATH)"$(_END)"
+	@rm -rf $(ASM_OBJ_PATH) 2> /dev/null || true
+	@echo "$(_YELLOW)Remove :\t$(_RED)" $(ASM_OBJ_PATH)"$(_END)"
 	@rm -f $(ART_NAME)
 	@echo "$(_YELLOW)Remove :\t$(_RED)" $(ART_NAME)"$(_END)"
 

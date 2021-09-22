@@ -1,5 +1,8 @@
 BITS 32
 
+SECTION .data
+        famine_mark: db "Famine version 1.0 (c)oded by mabouce",10
+
 SECTION .text
 
 _start_payload:
@@ -11,7 +14,6 @@ _start_payload:
     push edi
 
 _infection:
-    famine_mark: db "Famine version 1.0 (c)oded by mabouce",10
 
 _end_payload:
 
