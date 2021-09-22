@@ -67,9 +67,9 @@ static void error_msg(int err)
     }
 }
 
-void error(int err, t_woody *woody)
+void error(int err, t_famine *famine)
 {
     error_msg(err);
-    free_woody(woody);
+    free_famine(famine);
     exit(err);
 }

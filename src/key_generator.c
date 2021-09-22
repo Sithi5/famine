@@ -1,6 +1,6 @@
 #include "famine.h"
 
-void random_string(t_woody *woody)
+void random_string(t_famine *famine)
 {
     char key[KEY_LEN];
     int fd;
@@ -11,11 +11,11 @@ void random_string(t_woody *woody)
     }
     if ((fd = open("/dev/random", O_RDONLY)) == -1)
     {
-        error(ERROR_OPEN, woody);
+        error(ERROR_OPEN, famine);
     }
     if (read(fd, key, KEY_LEN) == -1)
     {
-        close(fd) == -1 ? error(ERROR_CLOSE, woody) : error(ERROR_READ, woody);
+        close(fd) == -1 ? error(ERROR_CLOSE, famine) : error(ERROR_READ, famine);
     }
     // Convert random char to readable
     for (int index = 0; index < KEY_LEN; index++)
@@ -24,22 +24,22 @@ void random_string(t_woody *woody)
         key[index] = (key[index] % 125);
         key[index] < 49 ? key[index] += 49 : 0;
     }
-    close(fd) == -1 ? error(ERROR_CLOSE, woody) : 0;
-    ft_memcpy((void *)woody->encryption_key, key, KEY_LEN);
-    woody->encryption_key[KEY_LEN] = '\0';
+    close(fd) == -1 ? error(ERROR_CLOSE, famine) : 0;
+    memcpy((void *)famine->encryption_key, key, KEY_LEN);
+    famine->encryption_key[KEY_LEN] = '\0';
 }
 
-void print_key(t_woody *woody)
+void print_key(t_famine *famine)
 {
-    write(1,"key : ",6);
-    write(1,woody->encryption_key,KEY_LEN);
-    write(1,"\n",1);
+    write(1, "key : ", 6);
+    write(1, famine->encryption_key, KEY_LEN);
+    write(1, "\n", 1);
 }
 
-void key_generator(t_woody *woody)
+void key_generator(t_famine *famine)
 {
-    if (!(woody->encryption_key = (char *)malloc(sizeof(char) * KEY_LEN + 1)))
-        error(ERROR_MALLOC, woody);
-    random_string(woody);
-    print_key(woody);
+    if (!(famine->encryption_key = (char *)malloc(sizeof(char) * KEY_LEN + 1)))
+        error(ERROR_MALLOC, famine);
+    random_string(famine);
+    print_key(famine);
 }

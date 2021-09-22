@@ -12,60 +12,60 @@
 
 #include "famine.h"
 
-void set_woody_ptrs_to_null(t_woody *woody)
+void set_famine_ptrs_to_null(t_famine *famine)
 {
-    woody->mmap_ptr = NULL;
-    woody->string_table_ptr = NULL;
-    woody->binary_data_size = 0;
-    woody->payload_data = NULL;
-    woody->payload_size = 0;
-    woody->infected_file = NULL;
-    woody->cipher = NULL;
-    woody->encryption_key = NULL;
+    famine->mmap_ptr = NULL;
+    famine->string_table_ptr = NULL;
+    famine->binary_data_size = 0;
+    famine->payload_data = NULL;
+    famine->payload_size = 0;
+    famine->infected_file = NULL;
+    famine->cipher = NULL;
+    famine->encryption_key = NULL;
 }
 
-/* Free the woody structure properly. */
-void free_woody(t_woody *woody)
+/* Free the famine structure properly. */
+void free_famine(t_famine *famine)
 {
-    if (woody)
+    if (famine)
     {
-        woody->mmap_ptr ? munmap(woody->mmap_ptr, woody->binary_data_size) : 0;
-        woody->payload_data ? free(woody->payload_data) : 0;
-        woody->infected_file ? free(woody->infected_file) : 0;
-        woody->cipher ? free(woody->cipher) : 0;
-        woody->encryption_key ? free(woody->encryption_key) : 0;
-        free(woody);
+        famine->mmap_ptr ? munmap(famine->mmap_ptr, famine->binary_data_size) : 0;
+        famine->payload_data ? free(famine->payload_data) : 0;
+        famine->infected_file ? free(famine->infected_file) : 0;
+        famine->cipher ? free(famine->cipher) : 0;
+        famine->encryption_key ? free(famine->encryption_key) : 0;
+        free(famine);
     }
 }
 
-void print_woody_infos(t_woody *woody)
+void print_famine_infos(t_famine *famine)
 {
-    (void)woody;
+    (void)famine;
     // printf("\n");
     // printf("Infos:\n");
     // printf("\tARCHITECTURE:\t\t\t\t\t%s\n", ARCH_32 ? "ARCH_32" : "ARCH_64");
     // printf("\tPAGE_SIZE:\t\t\t\t\t%u\n", PAGE_SIZE);
-    // printf("\tPAYLOAD_SIZE:\t\t\t\t\t%lu\n", woody->payload_size);
+    // printf("\tPAYLOAD_SIZE:\t\t\t\t\t%lu\n", famine->payload_size);
     // printf("Elf ehdr:\n");
-    // printf("\twoody->ehdr->e_phoff:\t\t\t\t%lu\n", woody->ehdr->e_phoff);      /* Program header table file offset */
-    // printf("\twoody->ehdr->e_shoff:\t\t\t\t%lu\n", woody->ehdr->e_shoff);      /* Section header table file offset */
-    // printf("\twoody->ehdr->e_flags:\t\t\t\t%u\n", woody->ehdr->e_flags);       /* Processor-specific flags */
-    // printf("\twoody->ehdr->e_ehsize:\t\t\t\t%u\n", woody->ehdr->e_ehsize);     /* ELF header size in bytes */
-    // printf("\twoody->ehdr->e_phentsize:\t\t\t%u\n", woody->ehdr->e_phentsize); /* Program header table entry size */
-    // printf("\twoody->ehdr->e_phnum:\t\t\t\t%u\n", woody->ehdr->e_phnum);       /* Program header table entry count */
-    // printf("\twoody->ehdr->e_shentsize:\t\t\t%u\n", woody->ehdr->e_shentsize); /* Section header table entry size */
-    // printf("\twoody->ehdr->e_shnum:\t\t\t\t%u\n", woody->ehdr->e_shnum);       /* Section header table entry count */
-    // printf("\twoody->ehdr->e_shstrndx:\t\t\t%u\n", woody->ehdr->e_shstrndx);   /* Section header string table index */
+    // printf("\tfamine->ehdr->e_phoff:\t\t\t\t%lu\n", famine->ehdr->e_phoff);      /* Program header table file offset */
+    // printf("\tfamine->ehdr->e_shoff:\t\t\t\t%lu\n", famine->ehdr->e_shoff);      /* Section header table file offset */
+    // printf("\tfamine->ehdr->e_flags:\t\t\t\t%u\n", famine->ehdr->e_flags);       /* Processor-specific flags */
+    // printf("\tfamine->ehdr->e_ehsize:\t\t\t\t%u\n", famine->ehdr->e_ehsize);     /* ELF header size in bytes */
+    // printf("\tfamine->ehdr->e_phentsize:\t\t\t%u\n", famine->ehdr->e_phentsize); /* Program header table entry size */
+    // printf("\tfamine->ehdr->e_phnum:\t\t\t\t%u\n", famine->ehdr->e_phnum);       /* Program header table entry count */
+    // printf("\tfamine->ehdr->e_shentsize:\t\t\t%u\n", famine->ehdr->e_shentsize); /* Section header table entry size */
+    // printf("\tfamine->ehdr->e_shnum:\t\t\t\t%u\n", famine->ehdr->e_shnum);       /* Section header table entry count */
+    // printf("\tfamine->ehdr->e_shstrndx:\t\t\t%u\n", famine->ehdr->e_shstrndx);   /* Section header string table index */
     // printf("Offsets:\n");
-    // printf("\twoody->text_p_start_offset:\t\t\t%lu\n", woody->text_p_start_offset);
-    // printf("\twoody->text_p_end_offset:\t\t\t%lu\n", woody->text_p_end_offset);
-    // printf("\twoody->encrypt_s_start_offset:\t\t\t%lu\n", woody->encrypt_s_start_offset);
-    // printf("\twoody->encrypt_s_end_offset:\t\t\t%lu\n", woody->encrypt_s_end_offset);
+    // printf("\tfamine->text_p_start_offset:\t\t\t%lu\n", famine->text_p_start_offset);
+    // printf("\tfamine->text_p_end_offset:\t\t\t%lu\n", famine->text_p_end_offset);
+    // printf("\tfamine->encrypt_s_start_offset:\t\t\t%lu\n", famine->encrypt_s_start_offset);
+    // printf("\tfamine->encrypt_s_end_offset:\t\t\t%lu\n", famine->encrypt_s_end_offset);
     // printf("Adresses:\n");
-    // printf("\twoody->old_entry_point:\t\t\t\t0x%lx -> %lu\n", woody->old_entry_point, woody->old_entry_point);
-    // printf("\twoody->new_entry_point:\t\t\t\t0x%lx -> %lu\n", woody->new_entry_point, woody->new_entry_point);
-    // printf("\twoody->text_p_vaddr:\t\t\t\t0x%lx -> %lu\n", woody->text_p_vaddr, woody->text_p_vaddr);
-    // printf("\twoody->encrypt_s_addr:\t\t\t\t0x%lx -> %lu\n", woody->encrypt_s_addr, woody->encrypt_s_addr);
+    // printf("\tfamine->old_entry_point:\t\t\t\t0x%lx -> %lu\n", famine->old_entry_point, famine->old_entry_point);
+    // printf("\tfamine->new_entry_point:\t\t\t\t0x%lx -> %lu\n", famine->new_entry_point, famine->new_entry_point);
+    // printf("\tfamine->text_p_vaddr:\t\t\t\t0x%lx -> %lu\n", famine->text_p_vaddr, famine->text_p_vaddr);
+    // printf("\tfamine->encrypt_s_addr:\t\t\t\t0x%lx -> %lu\n", famine->encrypt_s_addr, famine->encrypt_s_addr);
     // printf("\n");
 }
 
@@ -86,59 +86,4 @@ void print_memory_char(void *memory_ptr, size_t memory_size)
         printf("%c", ((char *)(memory_ptr))[i]);
     }
     printf("\n");
-}
-
-size_t ft_strncmp(const char *s1, const char *s2, size_t n)
-{
-    size_t i;
-
-    i = 0;
-    if (n == 0)
-        return (0);
-    while (s1[i] && s2[i] && i < n - 1 && s1[i] == s2[i])
-        i++;
-    return ((unsigned char)s1[i] - (unsigned char)s2[i]);
-}
-
-void *ft_memcpy(void *dst, const void *src, size_t n)
-{
-    size_t i;
-
-    i = 0;
-    while (i < n)
-    {
-        ((char *)dst)[i] = ((char *)src)[i];
-        i++;
-    }
-    return (dst);
-}
-
-size_t ft_strlen(const char *s)
-{
-    size_t i;
-
-    i = 0;
-    while (s[i])
-        i++;
-    return (i);
-}
-
-void *ft_memset(void *b, int c, size_t len)
-{
-    size_t i;
-
-    i = 0;
-    while (i < len)
-    {
-        ((char *)b)[i] = (char)c;
-        i++;
-    }
-    return (b);
-}
-
-void ft_bzero(void *s, size_t n)
-{
-    if (n == 0)
-        return;
-    ft_memset(s, 0, n);
 }

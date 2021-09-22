@@ -8,11 +8,11 @@ echo "\n\n\n\n${_YELLOW}$0 :${_END}\n\n"
 
 # Multiples infections should fail
 gcc ./tests/test1.c -o test1
-echo "\n${_GREEN}Creating and Executing woody with normal binary...${_END}\n"
+echo "\n${_GREEN}Creating and Executing famine with normal binary...${_END}\n"
 ./famine test1
-./woody
+./famine
 echo "\n${_GREEN}Try infecting a second time...${_END}\n"
-./famine woody
+./famine famine
 
 rm test1
-rm woody
+rm famine
