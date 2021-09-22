@@ -6,7 +6,8 @@ SHELL				=	/bin/sh
 
 NAME				=	famine
 
-PAYLOAD_NAME		=	payload
+PAYLOAD32_NAME		=	payload_32
+PAYLOAD64_NAME		=	payload_64
 
 ART_NAME			=	bird
 
@@ -80,19 +81,8 @@ endif
 ################################################################################
 
 
-ifeq ($(LONG_BITS),32)
-# Define for 32bits
-PAYLOAD_SRC_NAME	=	print_woody_payload_32.asm
-
-ASM_SRC_NAME		:=	xor_cipher_32.asm					\
-
-else
-# Define for 64bits
-PAYLOAD_SRC_NAME	=	rc4_payload_64.asm
-
-ASM_SRC_NAME		:=	rc4_cipher_64.asm					\
-
-endif
+PAYLOAD32_SRC_NAME	=	mark_32.asm
+PAYLOAD64_SRC_NAME	=	mark_64.asm
 
 SRC_NAME			:=	main.c								\
 						error.c								\
@@ -119,13 +109,9 @@ TESTS_SRC_NAME		:= 	./tests/test*.sh					\
 
 SRC_PATH			:=	./src/
 
-ASM_SRC_PATH		:=	./asm/
-
 PAYLOAD_SRC_PATH	:=	./payloads/
 
 OBJ_PATH 			:=	./obj/
-
-ASM_OBJ_PATH		:= 	./obj_asm/
 
 PAYLOAD_OBJ_PATH	:= 	$(ASM_OBJ_PATH)
 
@@ -138,13 +124,9 @@ INCLUDE_PATH		:=	./include/
 
 SRC					:=	$(addprefix $(SRC_PATH), $(SRC_NAME))
 
-ASM_SRC				:= 	$(addprefix $(ASM_SRC_PATH), $(ASM_SRC_NAME))
-
 PAYLOAD_SRC			:= 	$(addprefix $(PAYLOAD_SRC_PATH), $(PAYLOAD_SRC_NAME))
 
 OBJ					:=	$(patsubst $(SRC_PATH)%.c, $(OBJ_PATH)%.o,	$(SRC))
-
-ASM_OBJ				:=	$(patsubst $(ASM_SRC_PATH)%.asm, $(ASM_OBJ_PATH)%.o, $(ASM_SRC))
 
 PAYLOAD_OBJ			:=	$(patsubst $(PAYLOAD_SRC_PATH)%.asm, $(PAYLOAD_OBJ_PATH)%.o, $(PAYLOAD_SRC))
 
@@ -155,9 +137,9 @@ INCLUDE				:=	$(addprefix $(INCLUDE_PATH), $(INCLUDE_NAME))
 #                                     RULES                                    #
 ################################################################################
 
-all: $(ART_NAME) $(PAYLOAD_NAME) $(NAME)
+all: $(ART_NAME) $(PAYLOAD32_NAME) $(PAYLOAD64_NAME) $(NAME)
 
-$(NAME): $(ASM_OBJ) $(OBJ)
+$(NAME): $(OBJ)
 
 	@echo "\n$(NAME) : $(GEN)"
 	@echo "\n$(_CYAN)====================================================$(_END)"
@@ -167,7 +149,16 @@ $(NAME): $(ASM_OBJ) $(OBJ)
 	@echo "\n$(_WHITE)$(_BOLD)$@\t$(_END)$(_GREEN)[OK]\n$(_END)"
 	@echo "\n"
 
-$(PAYLOAD_NAME): $(PAYLOAD_OBJ)
+$(PAYLOAD32_NAME): $(PAYLOAD_OBJ)
+	@echo ""
+	@echo "\n$(_CYAN)====================================================$(_END)"
+	@echo "$(_YELLOW)		COMPILING $(PAYLOAD_NAME)$(_END)"
+	@echo "$(_CYAN)====================================================$(_END)"
+	@nasm -f bin -o $(PAYLOAD_NAME) $(PAYLOAD_SRC_PATH)$(PAYLOAD_SRC_NAME)
+	@echo "\n$(_WHITE)$(_BOLD)$@\t$(_END)$(_GREEN)[OK]\n$(_END)"
+	@echo "\n"
+
+$(PAYLOAD64_NAME): $(PAYLOAD_OBJ)
 	@echo ""
 	@echo "\n$(_CYAN)====================================================$(_END)"
 	@echo "$(_YELLOW)		COMPILING $(PAYLOAD_NAME)$(_END)"
@@ -182,13 +173,6 @@ $(OBJ_PATH)%.o: $(SRC_PATH)%.c $(INCLUDE)
 	@echo "$(_END)$(_GREEN)[OK]\t$(_UNDER)$(_YELLOW)\t"	\
 		"COMPILE :$(_END)$(_BOLD)$(_WHITE)\t$<"
 
-$(ASM_OBJ_PATH)%.o: $(ASM_SRC_PATH)%.asm
-	@mkdir -p $(ASM_OBJ_PATH)
-	@$(AS) $(AS_FLAG) $< -o $@
-	@echo "$(_END)$(_GREEN)[OK]\t$(_UNDER)$(_YELLOW)\t"	\
-		"COMPILE :$(_END)$(_BOLD)$(_WHITE)\t$<"
-
-# Only use to know if there is any update in the file.
 $(PAYLOAD_OBJ_PATH)%.o: $(PAYLOAD_SRC_PATH)%.asm
 	@mkdir -p $(PAYLOAD_OBJ_PATH)
 	@$(AS) $(AS_FLAG) $< -o $@

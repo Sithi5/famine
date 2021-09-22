@@ -1,8 +1,8 @@
 BITS 64
 
 SECTION .data
-        woody_msg: db "....WOODY....",10
-        woody_msg_len  : equ $-woody_msg
+        famine_msg: db "....famine....",10
+        famine_msg_len  : equ $-famine_msg
 
 SECTION .text
 %define WRITE 1
@@ -17,7 +17,7 @@ _start_payload:
     push r11
 
 _infection:
-    call _print_woody
+    call _print_famine
 
 _end_payload:
     pop r11
@@ -42,10 +42,10 @@ _ret2oep:
     add rax, 0x77777777 ; old entry_point
     ret
 
-_print_woody:
+_print_famine:
     mov rax, WRITE                ; sys_write
     mov rdi, STDOUT                ; stdout
-    mov rdx,woody_msg_len;len
-    lea rsi,[rel $+woody_msg-$]  ; woody
+    mov rdx,famine_msg_len;len
+    lea rsi,[rel $+famine_msg-$]  ; famine
     syscall
     ret

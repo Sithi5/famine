@@ -14,7 +14,7 @@ _start_payload:
     push edi
 
 _infection:
-    call _print_woody
+    call _print_famine
 
 _end_payload:
 
@@ -40,7 +40,7 @@ _ret2oep:
     add eax, 0x77777777 ; old entry_point
     ret
 
-_print_woody:
+_print_famine:
     enter 0,0 ; push ebp, mov ebp, esp
 
     ;Save registers on stack
