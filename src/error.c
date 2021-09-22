@@ -57,6 +57,10 @@ static void error_msg(int err)
                                                    : 0;
     err == ERROR_GETTEXTSIZE_NOT_FOUND ? fprintf(stderr, RED "error" END ": %d -> ERROR_GETTEXTSIZE_NOT_FOUND\n", err)
                                        : 0;
+    err == ERROR_STAT ? fprintf(stderr, RED "error" END ": %d -> ERROR_STAT\n", err)
+                      : 0;
+    err == ERROR_NOT_A_REGULAR_FILE ? fprintf(stderr, RED "error" END ": %d -> ERROR_NOT_A_REGULAR_FILE\n", err)
+                                    : 0;
     if (errno != 0)
     {
         fprintf(stderr, RED "errno " END ": %d -> %s\n", errno, strerror(errno));

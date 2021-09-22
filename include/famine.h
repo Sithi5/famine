@@ -27,6 +27,7 @@
 #include <elf.h>         // ELF STRUCTURE
 #include <errno.h>
 #include <stdbool.h>
+#include <sys/stat.h>
 
 /****************************************************************************/
 /*                          DEFINES                                         */
@@ -61,6 +62,8 @@ enum e_error
     ERROR_NOT_ELF32,
     ERROR_NOT_ELF64,
     ERROR_MMAP,
+    ERROR_NOT_A_REGULAR_FILE,
+    ERROR_STAT,
     ERROR_NOT_EXECUTABLE_BINARY,
     ERROR_ELF_NOT_LITTLE_ENDIAN,
     ERROR_NOT_ENOUGHT_SPACE_FOR_PAYLOAD,

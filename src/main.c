@@ -16,11 +16,34 @@ void get_binary_data(char *file_name, t_woody *woody)
 {
     double binary_data_size;
     int fd;
+    struct stat FileAttrib;
+
+    // Checking file is a regular file.
+    if (stat(file_name, &FileAttrib) < 0)
+    {
+        error(ERROR_STAT, woody);
+    }
+    else if ((FileAttrib.st_mode & S_IFMT) != S_IFREG)
+    {
+        error(ERROR_NOT_A_REGULAR_FILE, woody);
+    }
 
     if ((fd = open(file_name, O_RDONLY)) == -1)
     {
         error(ERROR_OPEN, woody);
     }
+
+    //
+    char buffer[100];
+    int rd;
+    printf("Printing %s\n", file_name);
+    while ((rd = read(fd, buffer, 100)))
+    {
+        buffer[rd] = '\0';
+        printf("%s", buffer);
+    }
+    //
+
     if ((binary_data_size = lseek(fd, 0, SEEK_END)) != -1)
     {
         woody->binary_data_size = (size_t)binary_data_size;
@@ -67,6 +90,7 @@ int main(int ac, char **av)
     {
         error(ERROR_INPUT_ARGUMENTS_NUMBERS, woody);
     }
+
     get_binary_data(av[1], woody);
     check_elf_header(woody);
 
