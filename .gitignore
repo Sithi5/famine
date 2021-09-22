@@ -6,6 +6,7 @@ payload_64
 a.out
 art
 bird
+test_infected_file
 
 # zettlr
 .ztr*

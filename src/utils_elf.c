@@ -38,13 +38,25 @@ void check_elf_header(t_famine *famine)
         error(ERROR_NOT_ELF, famine);
     }
     // Checking if class is well define.
-    if (ARCH_32 && ehdr->e_ident[EI_CLASS] != ELFCLASS32)
+    if (ehdr->e_ident[EI_CLASS] == ELFCLASS32)
     {
-        error(ERROR_NOT_ELF32, famine);
+        famine->elf_32 = true;
+        famine->elf_64 = false;
     }
-    else if (ARCH_64 && ehdr->e_ident[EI_CLASS] != ELFCLASS64)
+    else if (ehdr->e_ident[EI_CLASS] == ELFCLASS64)
     {
-        error(ERROR_NOT_ELF64, famine);
+        famine->elf_64 = true;
+        famine->elf_32 = false;
+        if (ARCH_32)
+        {
+            error(ERROR_NOT_ELF32, famine);
+        }
+    }
+    else
+    {
+        famine->elf_32 = false;
+        famine->elf_64 = false;
+        error(ERROR_NOT_ELF, famine);
     }
 
     // Check if file have already been infected

@@ -6,7 +6,9 @@ SHELL				=	/bin/sh
 
 NAME				=	famine
 
-PAYLOAD_NAME		=	payload
+PAYLOAD_NAME_32		=	payload_32
+
+PAYLOAD_NAME_64		=	payload_64
 
 ART_NAME			=	bird
 
@@ -26,14 +28,7 @@ CC					:=	gcc
 AS					:= nasm
 GEN					:=	Generation in mode
 
-LONG_BITS := $(shell getconf LONG_BIT)
-ifeq ($(LONG_BITS),32)
-# Define for 32bits
-CC				:= $(CC) -D ARCH_32
-AS_FLAG				:= -f elf32
-else
-AS_FLAG				:= -f elf64
-endif
+
 
 ifeq ($(WALL), yes)
 	CC				+=	-Wall
@@ -74,25 +69,43 @@ ifeq ($(GEN), "Generation in mode")
 	GEN				+=	no flags
 endif
 
+################################################################################
+#                                DEFINES                                       #
+################################################################################
+
+LONG_BITS := $(shell getconf LONG_BIT)
+ifeq ($(LONG_BITS),32)
+# Define for 32bits
+CC				+= -D ARCH_32
+ASM_FLAG		:= -f elf32
+else
+ASM_FLAG		:= -f elf64
+endif
+
+CC				+= -D PAYLOAD_NAME_32=\"$(PAYLOAD_NAME_32)\"
+CC				+= -D PAYLOAD_NAME_64=\"$(PAYLOAD_NAME_64)\"
+
 
 ################################################################################
 #                                     NAME                                     #
 ################################################################################
 
-
 ifeq ($(LONG_BITS),32)
 # Define for 32bits
-PAYLOAD_SRC_NAME	=	print_woody_payload_32.asm
-
-ASM_SRC_NAME		:=	xor_cipher_32.asm					\
-
+ASM_SRC_NAME		:=	xor_cipher_32.asm
 else
 # Define for 64bits
-PAYLOAD_SRC_NAME	=	rc4_payload_64.asm
-
-ASM_SRC_NAME		:=	rc4_cipher_64.asm					\
-
+ASM_SRC_NAME		:=	rc4_cipher_64.asm
 endif
+
+
+PAYLOAD_SRC_NAME_32	=	payload_mark_32.asm
+
+PAYLOAD_SRC_NAME_64	=	payload_mark_64.asm
+
+PAYLOAD_SRC_NAME	=	$(PAYLOAD_SRC_NAME_32)
+
+PAYLOAD_SRC_NAME	+=	$(PAYLOAD_SRC_NAME_64)
 
 SRC_NAME			:=	main.c								\
 						error.c								\
@@ -103,15 +116,15 @@ SRC_NAME			:=	main.c								\
 						overwrite_payload.c					\
 						find_payload_offset_elf32.c			\
 						find_payload_offset_elf64.c			\
-						silvio_text_infection.c				\
-						crypto.c							\
 						key_generator.c						\
+						crypto.c							\
+						silvio_text_infection.c
 
 
 
-INCLUDE_NAME		:=	famine.h					\
+INCLUDE_NAME		:=	famine.h
 
-TESTS_SRC_NAME		:= 	./tests/test*.sh					\
+TESTS_SRC_NAME		:= 	./tests/test*.sh
 
 ################################################################################
 #                                     PATH                                     #
@@ -127,10 +140,9 @@ OBJ_PATH 			:=	./obj/
 
 ASM_OBJ_PATH		:= 	./obj_asm/
 
-PAYLOAD_OBJ_PATH	:= 	$(ASM_OBJ_PATH)
+PAYLOAD_OBJ_PATH	:= 	./obj_payload/
 
 INCLUDE_PATH		:=	./include/
-
 
 ################################################################################
 #                                 NAME + PATH                                  #
@@ -155,10 +167,9 @@ INCLUDE				:=	$(addprefix $(INCLUDE_PATH), $(INCLUDE_NAME))
 #                                     RULES                                    #
 ################################################################################
 
-all: $(ART_NAME) $(PAYLOAD_NAME) $(NAME)
+all: $(ART_NAME) $(PAYLOAD_NAME_32) $(PAYLOAD_NAME_64) $(NAME)
 
 $(NAME): $(ASM_OBJ) $(OBJ)
-
 	@echo "\n$(NAME) : $(GEN)"
 	@echo "\n$(_CYAN)====================================================$(_END)"
 	@echo "$(_YELLOW)		COMPILING $(NAME)$(_END)"
@@ -167,31 +178,39 @@ $(NAME): $(ASM_OBJ) $(OBJ)
 	@echo "\n$(_WHITE)$(_BOLD)$@\t$(_END)$(_GREEN)[OK]\n$(_END)"
 	@echo "\n"
 
-$(PAYLOAD_NAME): $(PAYLOAD_OBJ)
-	@echo ""
+$(PAYLOAD_NAME_32): $(PAYLOAD_OBJ)
 	@echo "\n$(_CYAN)====================================================$(_END)"
-	@echo "$(_YELLOW)		COMPILING $(PAYLOAD_NAME)$(_END)"
+	@echo "$(_YELLOW)		COMPILING $(PAYLOAD_NAME_32)$(_END)"
 	@echo "$(_CYAN)====================================================$(_END)"
-	@nasm -f bin -o $(PAYLOAD_NAME) $(PAYLOAD_SRC_PATH)$(PAYLOAD_SRC_NAME)
+	@nasm -f bin -o $(PAYLOAD_NAME_32) $(PAYLOAD_SRC_PATH)$(PAYLOAD_SRC_NAME_32)
+	@echo "\n$(_WHITE)$(_BOLD)$@\t$(_END)$(_GREEN)[OK]\n$(_END)"
+	@echo "\n"
+
+$(PAYLOAD_NAME_64): $(PAYLOAD_OBJ)
+	@echo "\n$(_CYAN)====================================================$(_END)"
+	@echo "$(_YELLOW)		COMPILING $(PAYLOAD_NAME_64)$(_END)"
+	@echo "$(_CYAN)====================================================$(_END)"
+	@nasm -f bin -o $(PAYLOAD_NAME_64) $(PAYLOAD_SRC_PATH)$(PAYLOAD_SRC_NAME_64)
 	@echo "\n$(_WHITE)$(_BOLD)$@\t$(_END)$(_GREEN)[OK]\n$(_END)"
 	@echo "\n"
 
 $(OBJ_PATH)%.o: $(SRC_PATH)%.c $(INCLUDE)
 	@mkdir -p $(OBJ_PATH)
-	@$(CC) -I $(INCLUDE_PATH) -I $(INCLUDE_PATH) -c $< -o $@
+	@$(CC) -I $(INCLUDE_PATH) -c $< -o $@
 	@echo "$(_END)$(_GREEN)[OK]\t$(_UNDER)$(_YELLOW)\t"	\
 		"COMPILE :$(_END)$(_BOLD)$(_WHITE)\t$<"
 
 $(ASM_OBJ_PATH)%.o: $(ASM_SRC_PATH)%.asm
 	@mkdir -p $(ASM_OBJ_PATH)
-	@$(AS) $(AS_FLAG) $< -o $@
+	@$(AS) $(ASM_FLAG) $< -o $@
 	@echo "$(_END)$(_GREEN)[OK]\t$(_UNDER)$(_YELLOW)\t"	\
 		"COMPILE :$(_END)$(_BOLD)$(_WHITE)\t$<"
 
-# Only use to know if there is any update in the file.
+
+# This payload obj are just to prevent relink.
 $(PAYLOAD_OBJ_PATH)%.o: $(PAYLOAD_SRC_PATH)%.asm
 	@mkdir -p $(PAYLOAD_OBJ_PATH)
-	@$(AS) $(AS_FLAG) $< -o $@
+	@$(AS) $(ASM_FLAG) $< -o $@
 	@echo "$(_END)$(_GREEN)[OK]\t$(_UNDER)$(_YELLOW)\t"	\
 		"COMPILE :$(_END)$(_BOLD)$(_WHITE)\t$<"
 
@@ -203,23 +222,27 @@ tests: all
 
 clean:
 	@rm -rf $(OBJ_PATH) 2> /dev/null || true
-	@echo "$(_YELLOW)Remove :\t$(_RED)" $(LDFLAGS)$(OBJ_PATH)"$(_END)"
+	@echo "$(_YELLOW)Remove :\t$(_RED)" $(OBJ_PATH)"$(_END)"
 	@rm -rf $(ASM_OBJ_PATH) 2> /dev/null || true
-	@echo "$(_YELLOW)Remove :\t$(_RED)" $(LDFLAGS)$(ASM_OBJ_PATH)"$(_END)"
+	@echo "$(_YELLOW)Remove :\t$(_RED)" $(ASM_OBJ_PATH)"$(_END)"
 	@rm -f $(ART_NAME)
-	@echo "$(_YELLOW)Remove :\t$(_RED)" $(LDFLAGS)$(ART_NAME)"$(_END)"
+	@echo "$(_YELLOW)Remove :\t$(_RED)" $(ART_NAME)"$(_END)"
 
 
 clean_payload:
-	@rm -f $(PAYLOAD_NAME) $(ART_NAME)
-	@echo "$(_YELLOW)Remove :\t$(_RED)" $(LDFLAGS)$(PAYLOAD_NAME)"$(_END)"
+	@rm -f $(PAYLOAD_NAME_32)
+	@echo "$(_YELLOW)Remove :\t$(_RED)" $(PAYLOAD_NAME_32)"$(_END)"
+	@rm -f $(PAYLOAD_NAME_64)
+	@echo "$(_YELLOW)Remove :\t$(_RED)" $(PAYLOAD_NAME_64)"$(_END)"
+	@rm -rf $(PAYLOAD_OBJ_PATH) 2> /dev/null || true
+	@echo "$(_YELLOW)Remove :\t$(_RED)" $(PAYLOAD_OBJ_PATH)"$(_END)"
 
 fclean: clean clean_payload
-	@echo "$(_YELLOW)Remove :\t$(_RED)" $(LDFLAGS)$(NAME)
+	@rm -f $(NAME)
+	@echo "$(_YELLOW)Remove :\t$(_RED)" $(NAME)
 	@echo "$(_END)"
 
 re: fclean all
-
 
 help:
 	@echo "$(_YELLOW)Makefile for generating binary infectors."

@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   key_generator.c                                    :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: mabouce <ma.sithis@gmail.com>              +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2021/09/22 18:03:45 by mabouce           #+#    #+#             */
+/*   Updated: 2021/09/22 18:03:45 by mabouce          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "famine.h"
 
 void random_string(t_famine *famine)
@@ -29,17 +41,9 @@ void random_string(t_famine *famine)
     famine->encryption_key[KEY_LEN] = '\0';
 }
 
-void print_key(t_famine *famine)
-{
-    write(1, "key : ", 6);
-    write(1, famine->encryption_key, KEY_LEN);
-    write(1, "\n", 1);
-}
-
 void key_generator(t_famine *famine)
 {
     if (!(famine->encryption_key = (char *)malloc(sizeof(char) * KEY_LEN + 1)))
         error(ERROR_MALLOC, famine);
     random_string(famine);
-    print_key(famine);
 }

