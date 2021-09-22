@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "woody_woodpacker.h"
+#include "famine.h"
 
 void set_woody_ptrs_to_null(t_woody *woody)
 {

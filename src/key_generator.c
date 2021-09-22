@@ -1,11 +1,11 @@
-#include "woody_woodpacker.h"
+#include "famine.h"
 
 void random_string(t_woody *woody)
 {
     char key[KEY_LEN];
     int fd;
 
-    for (size_t n = 0; n < KEY_LEN; n++) 
+    for (size_t n = 0; n < KEY_LEN; n++)
     {
         key[n] = 0;
     }

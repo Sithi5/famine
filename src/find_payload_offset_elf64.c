@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "woody_woodpacker.h"
+#include "famine.h"
 
 // Find the ret2textsection offset in the payload. return true if ret2textsection have been found.
 size_t find_getencryptedsectionaddr_offset_elf64(t_woody *woody)

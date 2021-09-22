@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "woody_woodpacker.h"
+#include "famine.h"
 
 void silvio_text_infection(t_woody *woody)
 {

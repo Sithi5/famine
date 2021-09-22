@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "woody_woodpacker.h"
+#include "famine.h"
 
 // Rewrite info in payload ret2oep.
 void overwrite_payload_ret2oep(t_woody *woody)

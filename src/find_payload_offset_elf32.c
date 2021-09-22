@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "woody_woodpacker.h"
+#include "famine.h"
 
 // Find the gettextsize offset in the payload. return true if gettextsize have been found.
 size_t find_gettextsize_offset_elf32(t_woody *woody)

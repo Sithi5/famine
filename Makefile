@@ -4,7 +4,7 @@ SHELL				=	/bin/sh
 #                                BINARIES NAME                                 #
 ################################################################################
 
-NAME				=	woody_woodpacker
+NAME				=	famine
 
 PAYLOAD_NAME		=	payload
 
@@ -109,7 +109,7 @@ SRC_NAME			:=	main.c								\
 
 
 
-INCLUDE_NAME		:=	woody_woodpacker.h					\
+INCLUDE_NAME		:=	famine.h					\
 
 TESTS_SRC_NAME		:= 	./tests/test*.sh					\
 
