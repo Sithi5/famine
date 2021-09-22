@@ -12,11 +12,12 @@
 
 #include "famine.h"
 
-void check_elf_header(t_famine *famine)
+int check_elf_header(t_famine *famine)
 {
     if (famine->binary_data_size < sizeof(t_elf_ehdr))
     {
         error(ERROR_NOT_ELF, famine);
+        return -1;
     }
     t_elf_ehdr *ehdr = (t_elf_ehdr *)famine->mmap_ptr;
     /*
@@ -36,6 +37,7 @@ void check_elf_header(t_famine *famine)
           ehdr->e_ident[EI_PAD] == 0))
     {
         error(ERROR_NOT_ELF, famine);
+        return -1;
     }
     // Checking if class is well define.
     if (ehdr->e_ident[EI_CLASS] == ELFCLASS32)
@@ -50,6 +52,7 @@ void check_elf_header(t_famine *famine)
         if (ARCH_32)
         {
             error(ERROR_NOT_ELF32, famine);
+            return -1;
         }
     }
     else
@@ -57,23 +60,28 @@ void check_elf_header(t_famine *famine)
         famine->elf_32 = false;
         famine->elf_64 = false;
         error(ERROR_NOT_ELF, famine);
+        return -1;
     }
 
     // Check if file have already been infected
     if (ehdr->e_ident[EI_PAD + 3] == 7)
     {
         error(ERROR_FILE_IS_ALREADY_INFECTED, famine);
+        return -1;
     }
     /*e_ident[EI_DATA] to equal ELFDATA2LSB (little-endian data structures).*/
     if (!(ehdr->e_ident[EI_DATA] == ELFDATA2LSB))
     {
         error(ERROR_ELF_NOT_LITTLE_ENDIAN, famine);
+        return -1;
     }
     /*Next check if the EIF type is an executable or a shared library e_type == ET_EXEC or ET_DYN.*/
     if (ehdr->e_type != ET_EXEC && ehdr->e_type != ET_DYN)
     {
         error(ERROR_NOT_EXECUTABLE_BINARY, famine);
+        return -1;
     }
+    return 0;
 }
 
 void set_string_table_ptr(t_famine *famine)

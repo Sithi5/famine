@@ -15,7 +15,6 @@
 void set_famine_ptrs_to_null(t_famine *famine)
 {
     famine->mmap_ptr = NULL;
-    famine->string_table_ptr = NULL;
     famine->binary_data_size = 0;
     famine->payload_data = NULL;
     famine->payload_size = 0;
@@ -86,4 +85,18 @@ void print_memory_char(void *memory_ptr, size_t memory_size)
         printf("%c", ((char *)(memory_ptr))[i]);
     }
     printf("\n");
+}
+
+char *concat_strings(const char *str1, const char *str2)
+{
+    char *dest;
+
+    if (!(dest = malloc(sizeof(char) * (strlen(str1) + strlen(str2) + 1))))
+    {
+        return NULL;
+    }
+    strcpy(dest, str1);
+    strcat(dest, str2);
+    dest[strlen(dest)] = '\0';
+    return dest;
 }
