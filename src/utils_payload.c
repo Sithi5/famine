@@ -12,35 +12,35 @@
 
 #include "famine.h"
 
-void load_payload(t_woody *woody, char *payload_name)
+void load_payload(t_famine *famine, char *payload_name)
 {
     double payload_size;
     int fd;
 
     if ((fd = open(payload_name, O_RDONLY)) == -1)
     {
-        error(ERROR_OPEN, woody);
+        error(ERROR_OPEN, famine);
     }
     if ((payload_size = lseek(fd, 0, SEEK_END)) != -1)
     {
-        woody->payload_size = (size_t)payload_size;
+        famine->payload_size = (size_t)payload_size;
         /* Go back to the start of the file. */
         if (lseek(fd, 0, SEEK_SET) != 0)
         {
-            close(fd) == -1 ? error(ERROR_CLOSE, woody) : error(ERROR_LSEEK, woody);
+            close(fd) == -1 ? error(ERROR_CLOSE, famine) : error(ERROR_LSEEK, famine);
         }
-        if (!(woody->payload_data = malloc(payload_size)))
+        if (!(famine->payload_data = malloc(payload_size)))
         {
-            close(fd) == -1 ? error(ERROR_CLOSE, woody) : error(ERROR_MALLOC, woody);
+            close(fd) == -1 ? error(ERROR_CLOSE, famine) : error(ERROR_MALLOC, famine);
         }
-        if (read(fd, woody->payload_data, woody->payload_size) == -1)
+        if (read(fd, famine->payload_data, famine->payload_size) == -1)
         {
-            close(fd) == -1 ? error(ERROR_CLOSE, woody) : error(ERROR_READ, woody);
+            close(fd) == -1 ? error(ERROR_CLOSE, famine) : error(ERROR_READ, famine);
         }
     }
     else
     {
-        close(fd) == -1 ? error(ERROR_CLOSE, woody) : error(ERROR_LSEEK, woody);
+        close(fd) == -1 ? error(ERROR_CLOSE, famine) : error(ERROR_LSEEK, famine);
     }
-    close(fd) == -1 ? error(ERROR_CLOSE, woody) : 0;
+    close(fd) == -1 ? error(ERROR_CLOSE, famine) : 0;
 }

