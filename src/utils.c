@@ -20,8 +20,6 @@ void set_famine_ptrs_to_null(t_famine *famine)
     famine->payload_data = NULL;
     famine->payload_size = 0;
     famine->infected_file = NULL;
-    famine->cipher = NULL;
-    famine->encryption_key = NULL;
 }
 
 /* Free the famine structure properly. */
@@ -32,8 +30,6 @@ void free_famine(t_famine *famine)
         famine->mmap_ptr ? munmap(famine->mmap_ptr, famine->binary_data_size) : 0;
         famine->payload_data ? free(famine->payload_data) : 0;
         famine->infected_file ? free(famine->infected_file) : 0;
-        famine->cipher ? free(famine->cipher) : 0;
-        famine->encryption_key ? free(famine->encryption_key) : 0;
         free(famine);
     }
 }

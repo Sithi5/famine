@@ -78,12 +78,6 @@ enum e_error
 };
 
 #define PAGE_SIZE 0x1000
-#define KEY_LEN 0x80
-
-#define OUTPUT_FILE_NAME "famine"
-#define PAYLOAD_NAME "payload"
-
-#define SECTION_TO_ENCRYPT_NAME ".text"
 
 /* Custom types for 32bit compatibility. */
 #ifdef ARCH_32
@@ -126,9 +120,6 @@ typedef struct s_famine
 
     void *payload_data;
     size_t payload_size;
-    char *encryption_key;
-
-    void *cipher;
 
     t_elf_ehdr *ehdr;
     t_elf_phdr *phdr;
@@ -141,12 +132,6 @@ typedef struct s_famine
     t_elf_off text_p_end_offset;
     size_t text_p_size;
     t_elf_addr text_p_vaddr;
-    size_t text_section_size;
-
-    t_elf_off encrypt_s_start_offset;
-    t_elf_off encrypt_s_end_offset;
-    size_t encrypt_s_size;
-    t_elf_addr encrypt_s_addr;
 
     int ret2oep_offset;
 
@@ -161,10 +146,6 @@ typedef struct s_famine
 void check_elf_header(t_famine *famine);
 void set_string_table_ptr(t_famine *famine);
 
-void key_generator(t_famine *famine);
-void cipher_famine_file_data(t_famine *famine);
-char *rc4_cipher(t_famine *famine, char *data, int len);
-
 void choose_infection_method(t_famine *famine);
 void silvio_text_infection(t_famine *famine);
 
@@ -174,11 +155,6 @@ size_t find_getencryptedsectionaddr_offset_elf64(t_famine *famine);
 size_t find_getencryptedsectionsize_offset_elf64(t_famine *famine);
 
 void overwrite_payload_ret2oep(t_famine *famine);
-void overwrite_payload_getencryptedsectionaddr(t_famine *famine);
-void overwrite_payload_getencryptedsectionsize(t_famine *famine);
-void overwrite_keysection_payload(t_famine *famine);
-void overwrite_payload_gettextsectionaddr(t_famine *famine);
-void overwrite_payload_gettextsize(t_famine *famine);
 void load_payload(t_famine *famine, char *payload_name);
 
 size_t find_gettextsize_offset_elf32(t_famine *famine);
@@ -198,18 +174,7 @@ void print_famine_infos(t_famine *famine);
 void print_memory_hex(void *memory_ptr, size_t memory_size);
 void print_memory_char(void *memory_ptr, size_t memory_size);
 void free_famine(t_famine *famine);
-void *memcpy(void *dst, const void *src, size_t n);
-size_t strncmp(const char *s1, const char *s2, size_t n);
-size_t strlen(const char *s);
-void bzero(void *s, size_t n);
 void error(int err, t_famine *famine);
-
-/****************************************************************************/
-/*                          ASM FUNCTIONS DEFINITIONS                       */
-/****************************************************************************/
-
-extern char *rc4_cipher_start(void *data, int datalen, char *key, int keylen);
-extern char *asm_xor_cipher(char *data, int datalen, char *key, int keylen);
 
 /****************************************************************************/
 /*                          GLOBAL VARIABLES                                */
