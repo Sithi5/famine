@@ -60,7 +60,6 @@ enum e_error
     ERROR_LSEEK,
     ERROR_NOT_ELF,
     ERROR_NOT_ELF32,
-    ERROR_NOT_ELF64,
     ERROR_MMAP,
     ERROR_NOT_A_REGULAR_FILE,
     ERROR_STAT,
@@ -94,7 +93,6 @@ typedef Elf32_Off t_elf_off;
 
 #else /* 64 bits */
 
-// If ARCH_32 not define, define it to 0.
 #define ARCH_64 1
 #define ARCH_32 0
 
@@ -117,6 +115,8 @@ typedef struct s_famine
     void *mmap_ptr;
     void *string_table_ptr;
     size_t binary_data_size;
+    bool elf_64;
+    bool elf_32;
 
     void *payload_data;
     size_t payload_size;

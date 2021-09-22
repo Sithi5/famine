@@ -33,8 +33,6 @@ static void error_msg(int err)
                          : 0;
     err == ERROR_NOT_ELF32 ? fprintf(stderr, RED "error" END ": %d -> ERROR_NOT_ELF32\n", err)
                            : 0;
-    err == ERROR_NOT_ELF64 ? fprintf(stderr, RED "error" END ": %d -> ERROR_NOT_ELF64\n", err)
-                           : 0;
     err == ERROR_MMAP ? fprintf(stderr, RED "error" END ": %d -> ERROR_MMAP\n", err)
                       : 0;
     err == ERROR_NOT_EXECUTABLE_BINARY ? fprintf(stderr, RED "error" END ": %d -> ERROR_NOT_EXECUTABLE_BINARY\n", err)
