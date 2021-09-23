@@ -8,6 +8,7 @@ art
 bird
 test_infected_file
 infected_file/*
+tmp*
 
 # zettlr
 .ztr*

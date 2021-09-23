@@ -28,7 +28,7 @@ void free_famine(t_famine *famine)
 {
     if (famine)
     {
-        famine->mmap_ptr ? munmap(famine->mmap_ptr, famine->binary_data_size) : 0;
+        famine->mmap_ptr ? munmap(famine->mmap_ptr, famine->binary_data_size + PAGE_SIZE) : 0;
         famine->payload_data ? free(famine->payload_data) : 0;
         famine->infected_file ? free(famine->infected_file) : 0;
         famine->cipher ? free(famine->cipher) : 0;
