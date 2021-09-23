@@ -4,7 +4,7 @@ SHELL				=	/bin/sh
 #                                BINARIES NAME                                 #
 ################################################################################
 
-NAME				=	famine
+NAME				=	Famine
 
 PAYLOAD_NAME_32		=	payload_32
 
