@@ -129,6 +129,7 @@ typedef Elf64_Off t_elf_off;
 
 typedef struct s_famine
 {
+    int input_file_fd;
     void *mmap_ptr;
     void *string_table_ptr;
     size_t binary_data_size;
