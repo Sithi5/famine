@@ -15,7 +15,6 @@ mkdir /tmp/test2/
 
 printf '%s\n%s\n%s\n\t%s\n\t%s\n%s\n' "#include <stdio.h>" "int main(void)" "{" "printf(\"Hello, World\n\");" "return 0;" "}" > ./tests/tmp.c
 gcc -m64 ./tests/tmp.c -o /tmp/test/sample
-rm ./tests/tmp.c
 ls -al /tmp/test
 /tmp/test/sample
 file /tmp/test/sample
@@ -40,3 +39,5 @@ file /tmp/test/sample
 strings /tmp/test/sample | grep "mabouce"
 /tmp/test2/ls -la /tmp/test2/
 strings /tmp/test/sample | grep "mabouce"
+
+rm ./tests/tmp.c
