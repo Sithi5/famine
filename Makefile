@@ -118,6 +118,7 @@ SRC_NAME			:=	main.c								\
 						find_payload_offset_elf64.c			\
 						key_generator.c						\
 						crypto.c							\
+						pt_note_to_pt_load_infection.c		\
 						silvio_text_infection.c
 
 

