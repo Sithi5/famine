@@ -215,6 +215,10 @@ size_t find_getencryptedsectionsize_offset_elf64(t_famine *famine);
 size_t find_gettextsize_offset_elf64(t_famine *famine);
 size_t find_ret2oep_offset_elf64(t_famine *famine);
 
+bool is_text_segment(const t_elf_phdr segment);
+bool is_data_segment(const t_elf_phdr segment);
+bool is_note_segment(const t_elf_phdr segment);
+
 void set_famine_ptrs_to_null(t_famine *famine);
 void print_famine_infos(t_famine *famine);
 void print_memory_hex(void *memory_ptr, size_t memory_size);
