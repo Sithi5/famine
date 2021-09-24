@@ -101,6 +101,8 @@ enum e_error
 #define FORCE_PT_NOTE_TO_PT_LOAD_INFECTION true
 #define FORCE_SILVIO_TEXT_INFECTION false
 
+#define INFECTION_SIGNATURE 7
+
 /* Custom types for 32bit compatibility. */
 #ifdef ARCH_32
 

