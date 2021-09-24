@@ -98,6 +98,9 @@ enum e_error
 #define SECTION_TO_ENCRYPT_NAME ".text"
 #define KEY_LEN 0x80
 
+#define FORCE_PT_NOTE_TO_PT_LOAD_INFECTION true
+#define FORCE_SILVIO_TEXT_INFECTION false
+
 /* Custom types for 32bit compatibility. */
 #ifdef ARCH_32
 
