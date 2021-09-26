@@ -35,7 +35,7 @@ endif
 
 SRC_NAME		:=	famine.asm
 
-INCLUDE_NAME		:=	famine.inc
+INCLUDE_NAME		:=	define.inc
 
 TESTS_SRC_NAME		:= 	./tests/test*.sh
 
