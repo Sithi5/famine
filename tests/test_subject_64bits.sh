@@ -1,11 +1,11 @@
 #!/bin/bash
-set -x
 _GREEN=`tput setaf 2`
 _YELLOW=`tput setaf 3`
 _END=`tput sgr0`
 
 # Echo filename
 echo "\n\n\n\n${_YELLOW}$0 :${_END}\n\n"
+set -x
 
 # Test subject
 rm -rf /tmp/test/

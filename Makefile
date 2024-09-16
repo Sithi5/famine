@@ -6,68 +6,15 @@ SHELL				=	/bin/sh
 
 NAME				=	Famine
 
-PAYLOAD_NAME_32		=	payload_32
-
-PAYLOAD_NAME_64		=	payload_64
-
 ART_NAME			=	bird
 
 ################################################################################
 #                                COMPILATION MODE                              #
 ################################################################################
 
-WALL				:=	yes
-WEXTRA				:=	yes
-WSHADOW				:=	yes
-WERROR				:=	no
-FSANITIZE			:=	no
-DEBUG				:=	no
-O2					:=	no
-
-CC					:=	gcc
-AS					:= nasm
-GEN					:=	Generation in mode
-
-
-
-ifeq ($(WALL), yes)
-	CC				+=	-Wall
-	GEN				+=	 all
-endif
-
-ifeq ($(WEXTRA), yes)
-	CC				+=	-Wextra
-	GEN				+=	extra
-endif
-
-ifeq ($(WSHADOW), yes)
-	CC				+=	-Wshadow
-	GEN				+=	shadow
-endif
-
-ifeq ($(WERROR), yes)
-	CC				+=	-Werror
-	GEN				+=	error
-endif
-
-ifeq ($(FSANITIZE), yes)
-	CC				+=	-fsanitize=address
-	GEN				+=	sanitize
-endif
-
-ifeq ($(DEBUG), yes)
-	CC				+=	-g
-	GEN				+=	debug
-endif
-
-ifeq ($(O2),yes)
-	CC				+=	-O2
-	GEN				+=	O2
-endif
-
-ifeq ($(GEN), "Generation in mode")
-	GEN				+=	no flags
-endif
+AS					:=	nasm
+LD					:=	ld #Linker
+LDFLAGS				:= #Linker flags
 
 ################################################################################
 #                                DEFINES                                       #
@@ -82,47 +29,13 @@ else
 ASM_FLAG		:= -f elf64
 endif
 
-CC				+= -D PAYLOAD_NAME_32=\"$(PAYLOAD_NAME_32)\"
-CC				+= -D PAYLOAD_NAME_64=\"$(PAYLOAD_NAME_64)\"
-
-
 ################################################################################
 #                                     NAME                                     #
 ################################################################################
 
-ifeq ($(LONG_BITS),32)
-# Define for 32bits
-ASM_SRC_NAME		:=	xor_cipher_32.asm
-else
-# Define for 64bits
-ASM_SRC_NAME		:=	rc4_cipher_64.asm
-endif
+SRC_NAME		:=	famine.asm
 
-
-PAYLOAD_SRC_NAME_32	=	payload_mark_32.asm
-
-PAYLOAD_SRC_NAME_64	=	payload_mark_64.asm
-
-PAYLOAD_SRC_NAME	=	$(PAYLOAD_SRC_NAME_32)
-
-PAYLOAD_SRC_NAME	+=	$(PAYLOAD_SRC_NAME_64)
-
-SRC_NAME			:=	main.c								\
-						error.c								\
-						utils.c								\
-						utils_elf.c							\
-						infection.c							\
-						utils_payload.c						\
-						overwrite_payload.c					\
-						find_payload_offset_elf32.c			\
-						find_payload_offset_elf64.c			\
-						key_generator.c						\
-						crypto.c							\
-						silvio_text_infection.c
-
-
-
-INCLUDE_NAME		:=	famine.h
+INCLUDE_NAME		:=	define.inc
 
 TESTS_SRC_NAME		:= 	./tests/test*.sh
 
@@ -130,17 +43,9 @@ TESTS_SRC_NAME		:= 	./tests/test*.sh
 #                                     PATH                                     #
 ################################################################################
 
-SRC_PATH			:=	./src/
+SRC_PATH		:=	./asm/
 
-ASM_SRC_PATH		:=	./asm/
-
-PAYLOAD_SRC_PATH	:=	./payloads/
-
-OBJ_PATH 			:=	./obj/
-
-ASM_OBJ_PATH		:= 	./obj_asm/
-
-PAYLOAD_OBJ_PATH	:= 	./obj_payload/
+OBJ_PATH		:= 	./obj_asm/
 
 INCLUDE_PATH		:=	./include/
 
@@ -148,69 +53,30 @@ INCLUDE_PATH		:=	./include/
 #                                 NAME + PATH                                  #
 ################################################################################
 
-SRC					:=	$(addprefix $(SRC_PATH), $(SRC_NAME))
+SRC					:= 	$(addprefix $(SRC_PATH), $(SRC_NAME))
 
-ASM_SRC				:= 	$(addprefix $(ASM_SRC_PATH), $(ASM_SRC_NAME))
-
-PAYLOAD_SRC			:= 	$(addprefix $(PAYLOAD_SRC_PATH), $(PAYLOAD_SRC_NAME))
-
-OBJ					:=	$(patsubst $(SRC_PATH)%.c, $(OBJ_PATH)%.o,	$(SRC))
-
-ASM_OBJ				:=	$(patsubst $(ASM_SRC_PATH)%.asm, $(ASM_OBJ_PATH)%.o, $(ASM_SRC))
-
-PAYLOAD_OBJ			:=	$(patsubst $(PAYLOAD_SRC_PATH)%.asm, $(PAYLOAD_OBJ_PATH)%.o, $(PAYLOAD_SRC))
+OBJ					:=	$(patsubst $(SRC_PATH)%.asm, $(OBJ_PATH)%.o, $(SRC))
 
 INCLUDE				:=	$(addprefix $(INCLUDE_PATH), $(INCLUDE_NAME))
-
 
 ################################################################################
 #                                     RULES                                    #
 ################################################################################
 
-all: $(ART_NAME) $(PAYLOAD_NAME_32) $(PAYLOAD_NAME_64) $(NAME)
+all: $(ART_NAME) $(NAME)
 
-$(NAME): $(ASM_OBJ) $(OBJ)
-	@echo "\n$(NAME) : $(GEN)"
+$(NAME): $(OBJ)
+	@echo "\n$(NAME)"
 	@echo "\n$(_CYAN)====================================================$(_END)"
 	@echo "$(_YELLOW)		COMPILING $(NAME)$(_END)"
 	@echo "$(_CYAN)====================================================$(_END)"
-	@$(CC) -o $(NAME) $(OBJ) $(ASM_OBJ)
+	@$(LD) $(LDFLAG) -o $(NAME) $(OBJ)
 	@echo "\n$(_WHITE)$(_BOLD)$@\t$(_END)$(_GREEN)[OK]\n$(_END)"
 	@echo "\n"
 
-$(PAYLOAD_NAME_32): $(PAYLOAD_OBJ)
-	@echo "\n$(_CYAN)====================================================$(_END)"
-	@echo "$(_YELLOW)		COMPILING $(PAYLOAD_NAME_32)$(_END)"
-	@echo "$(_CYAN)====================================================$(_END)"
-	@nasm -f bin -o $(PAYLOAD_NAME_32) $(PAYLOAD_SRC_PATH)$(PAYLOAD_SRC_NAME_32)
-	@echo "\n$(_WHITE)$(_BOLD)$@\t$(_END)$(_GREEN)[OK]\n$(_END)"
-	@echo "\n"
-
-$(PAYLOAD_NAME_64): $(PAYLOAD_OBJ)
-	@echo "\n$(_CYAN)====================================================$(_END)"
-	@echo "$(_YELLOW)		COMPILING $(PAYLOAD_NAME_64)$(_END)"
-	@echo "$(_CYAN)====================================================$(_END)"
-	@nasm -f bin -o $(PAYLOAD_NAME_64) $(PAYLOAD_SRC_PATH)$(PAYLOAD_SRC_NAME_64)
-	@echo "\n$(_WHITE)$(_BOLD)$@\t$(_END)$(_GREEN)[OK]\n$(_END)"
-	@echo "\n"
-
-$(OBJ_PATH)%.o: $(SRC_PATH)%.c $(INCLUDE)
+$(OBJ_PATH)%.o: $(SRC_PATH)%.asm $(INCLUDE)
 	@mkdir -p $(OBJ_PATH)
-	@$(CC) -I $(INCLUDE_PATH) -c $< -o $@
-	@echo "$(_END)$(_GREEN)[OK]\t$(_UNDER)$(_YELLOW)\t"	\
-		"COMPILE :$(_END)$(_BOLD)$(_WHITE)\t$<"
-
-$(ASM_OBJ_PATH)%.o: $(ASM_SRC_PATH)%.asm
-	@mkdir -p $(ASM_OBJ_PATH)
-	@$(AS) $(ASM_FLAG) $< -o $@
-	@echo "$(_END)$(_GREEN)[OK]\t$(_UNDER)$(_YELLOW)\t"	\
-		"COMPILE :$(_END)$(_BOLD)$(_WHITE)\t$<"
-
-
-# This payload obj are just to prevent relink.
-$(PAYLOAD_OBJ_PATH)%.o: $(PAYLOAD_SRC_PATH)%.asm
-	@mkdir -p $(PAYLOAD_OBJ_PATH)
-	@$(AS) $(ASM_FLAG) $< -o $@
+	@$(AS) $(ASM_FLAG) -I $(INCLUDE_PATH) -I $(SRC_PATH) $< -o $@
 	@echo "$(_END)$(_GREEN)[OK]\t$(_UNDER)$(_YELLOW)\t"	\
 		"COMPILE :$(_END)$(_BOLD)$(_WHITE)\t$<"
 
@@ -223,21 +89,11 @@ tests: all
 clean:
 	@rm -rf $(OBJ_PATH) 2> /dev/null || true
 	@echo "$(_YELLOW)Remove :\t$(_RED)" $(OBJ_PATH)"$(_END)"
-	@rm -rf $(ASM_OBJ_PATH) 2> /dev/null || true
-	@echo "$(_YELLOW)Remove :\t$(_RED)" $(ASM_OBJ_PATH)"$(_END)"
 	@rm -f $(ART_NAME)
 	@echo "$(_YELLOW)Remove :\t$(_RED)" $(ART_NAME)"$(_END)"
 
 
-clean_payload:
-	@rm -f $(PAYLOAD_NAME_32)
-	@echo "$(_YELLOW)Remove :\t$(_RED)" $(PAYLOAD_NAME_32)"$(_END)"
-	@rm -f $(PAYLOAD_NAME_64)
-	@echo "$(_YELLOW)Remove :\t$(_RED)" $(PAYLOAD_NAME_64)"$(_END)"
-	@rm -rf $(PAYLOAD_OBJ_PATH) 2> /dev/null || true
-	@echo "$(_YELLOW)Remove :\t$(_RED)" $(PAYLOAD_OBJ_PATH)"$(_END)"
-
-fclean: clean clean_payload
+fclean: clean
 	@rm -f $(NAME)
 	@echo "$(_YELLOW)Remove :\t$(_RED)" $(NAME)
 	@echo "$(_END)"
@@ -248,9 +104,9 @@ help:
 	@echo "$(_YELLOW)Makefile for generating binary infectors."
 	@echo "$(_YELLOW)Usage:                                                                    "
 	@echo "$(_YELLOW)   make                                runs all                           "
-	@echo "$(_YELLOW)   make all                            generates all binaries             "
-	@echo "$(_YELLOW)   make clean                          remove the generated files         "
-	@echo "$(_YELLOW)   make fclean                  		clean and remove binaries files    "
+	@echo "$(_YELLOW)   make all                            generates all                      "
+	@echo "$(_YELLOW)   make clean                          remove the object files            "
+	@echo "$(_YELLOW)   make fclean                         clean and remove binaries files    "
 	@echo "$(_YELLOW)   make tests                          launch tests scripts               "
 	@echo "$(_YELLOW)   make help                           prints this message                $(_END)"
 

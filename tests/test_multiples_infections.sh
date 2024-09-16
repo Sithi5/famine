@@ -1,18 +1,36 @@
-# _GREEN=`tput setaf 2`
-# _YELLOW=`tput setaf 3`
-# _END=`tput sgr0`
+#!/bin/bash
+_GREEN=`tput setaf 2`
+_YELLOW=`tput setaf 3`
+_END=`tput sgr0`
 
-# # echo filename
-# echo "\n\n\n\n${_YELLOW}$0 :${_END}\n\n"
+# Echo filename
+echo "\n\n\n\n${_YELLOW}$0 :${_END}\n\n"
 
+set -x
 
-# # Multiples infections should fail
-# gcc ./tests/test1.c -o test1
-# echo "\n${_GREEN}Creating and Executing famine with normal binary...${_END}\n"
-# ./famine test1
-# ./famine
-# echo "\n${_GREEN}Try infecting a second time...${_END}\n"
-# ./famine famine
+# Test subject
+rm -rf /tmp/test/
+rm -rf /tmp/test2/
+mkdir /tmp/test/
+mkdir /tmp/test2/
 
-# rm test1
-# rm famine
+printf '%s\n%s\n%s\n\t%s\n\t%s\n%s\n' "#include <stdio.h>" "int main(void)" "{" "printf(\"Hello, World\n\");" "return 0;" "}" > ./tests/tmp.c
+cat ./tests/tmp.c
+gcc -m64 ./tests/tmp.c -o /tmp/test/sample
+gcc -m64 ./tests/tmp.c -o /tmp/test2/sample
+/tmp/test/sample
+/tmp/test2/sample
+strings /tmp/test/sample | grep "mabouce"
+strings /tmp/test2/sample | grep "mabouce"
+
+./Famine
+
+strings /tmp/test/sample | grep "mabouce"
+strings /tmp/test2/sample | grep "mabouce"
+
+./Famine
+
+strings /tmp/test/sample | grep "mabouce"
+strings /tmp/test2/sample | grep "mabouce"
+
+rm ./tests/tmp.c
